@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, User, MessageSquare, ShieldCheck, Zap } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface ChatInterfaceProps {
     onClose: () => void;
     theme: 'light' | 'dark';
+    sessionId: string;
 }
 
 interface Message {
-    id: number;
+    id: string | number;
     text: string;
-    sender: 'user' | 'bot';
+    sender: 'user' | 'admin' | 'bot';
     timestamp: Date;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId }) => {
     const isDark = theme === 'dark';
     const [messages, setMessages] = useState<Message[]>([
         {
-            id: 1,
+            id: 'welcome',
             text: "Welcome to the Royal Vault Concierge. How can we assist with your payment or transaction today?",
             sender: 'bot',
             timestamp: new Date()
@@ -29,36 +31,87 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        // Fetch existing messages
+        const fetchMessages = async () => {
+            const { data, error } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('session_id', sessionId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error('Chat error:', error);
+                return;
+            }
+
+            if (data) {
+                const mapped = data.map(m => ({
+                    id: m.id,
+                    text: m.text,
+                    sender: m.sender,
+                    timestamp: new Date(m.created_at)
+                }));
+                setMessages(prev => [prev[0], ...mapped]);
+            }
+        };
+
+        fetchMessages();
+
+        // Subscribe to real-time changes
+        const channel = supabase
+            .channel(`chat:${sessionId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages',
+                filter: `session_id=eq.${sessionId}`
+            }, (payload) => {
+                const newMsg = payload.new;
+                setMessages(prev => {
+                    if (prev.find(m => m.id === newMsg.id)) return prev;
+                    return [...prev, {
+                        id: newMsg.id,
+                        text: newMsg.text,
+                        sender: newMsg.sender,
+                        timestamp: new Date(newMsg.created_at)
+                    }];
+                });
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [sessionId]);
+
+    useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, isTyping]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
-        const userMsg: Message = {
-            id: Date.now(),
-            text: input,
-            sender: 'user',
-            timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, userMsg]);
+        const text = input.trim();
         setInput('');
 
-        // Bot Response Simulation
-        setIsTyping(true);
-        setTimeout(() => {
-            setIsTyping(false);
-            const botMsg: Message = {
-                id: Date.now() + 1,
-                text: "I understand you're looking for alternative payment methods. An Elite Concierge agent will be with you shortly to provide our secure manual payment details. Please keep this window open.",
-                sender: 'bot',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, botMsg]);
-        }, 1500);
+        const { data, error } = await supabase
+            .from('messages')
+            .insert([{
+                session_id: sessionId,
+                text: text,
+                sender: 'user'
+            }])
+            .select();
+
+        if (error) {
+            console.error('Send error:', error);
+            return;
+        }
+
+        // Optimistic update handled by Realtime subscription mostly, 
+        // but we can add locally if we want immediate feedback
     };
 
     return (
@@ -102,8 +155,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme }) => {
                     {messages.map(msg => (
                         <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[80%] p-4 rounded-2xl shadow-sm text-sm font-medium ${msg.sender === 'user'
-                                    ? 'bg-blue-600 text-white rounded-tr-none'
-                                    : isDark ? 'bg-white/5 text-slate-200 border border-white/5 rounded-tl-none' : 'bg-gray-100 text-slate-700 rounded-tl-none'
+                                ? 'bg-blue-600 text-white rounded-tr-none'
+                                : isDark ? 'bg-white/5 text-slate-200 border border-white/5 rounded-tl-none' : 'bg-gray-100 text-slate-700 rounded-tl-none'
                                 }`}>
                                 {msg.text}
                                 <p className={`text-[8px] mt-1.5 font-bold uppercase tracking-widest opacity-40 ${msg.sender === 'user' ? 'text-white' : 'text-slate-500'}`}>

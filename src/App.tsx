@@ -7,7 +7,7 @@ import {
   Menu, ShoppingBag, Search, ArrowRight, Package, Zap,
   Layers, Award, Plus, Home, User, X, ChevronRight,
   Heart, BarChart3, Wallet, Settings, HelpCircle, CreditCard,
-  Sun, Moon, LayoutGrid, Crown, Facebook
+  Sun, Moon, LayoutGrid, Crown, Facebook, Gavel
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import SplashScreen from './SplashScreen';
@@ -21,6 +21,7 @@ import ChatInterface from './components/ChatInterface';
 import CheckoutModal from './components/CheckoutModal';
 import { PRODUCTS, CATEGORIES, FEATURED_IMAGES } from './data/products';
 import { Product, CartItem } from './types';
+import { supabase } from './lib/supabase';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -32,6 +33,16 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+
+  // Supabase & Session State
+  const [sessionId] = useState(() => {
+    let id = localStorage.getItem('tcg_vault_session');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('tcg_vault_session', id);
+    }
+    return id;
+  });
 
   // Phase 14: Dynamic Products & Theme
   const [liveProducts, setLiveProducts] = useState<Product[]>(() => {
@@ -63,13 +74,34 @@ export default function App() {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2800);
-    return () => clearTimeout(timer);
+    const fetchProducts = async () => {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) {
+        console.error('Fetch error:', error);
+        return;
+      }
+      if (data && data.length > 0) {
+        setLiveProducts(data);
+      }
+    };
+    fetchProducts();
   }, []);
 
+  // Sync visitor to analytics
   useEffect(() => {
-    localStorage.setItem('tcg_vault_products', JSON.stringify(liveProducts));
-  }, [liveProducts]);
+    const trackVisitor = async () => {
+      try {
+        // Simple Geo-IP (optional polish later)
+        await supabase.from('visitors').upsert({
+          session_id: sessionId,
+          last_active: new Date().toISOString()
+        }, { onConflict: 'session_id' });
+      } catch (err) {
+        console.warn('Analytics sync failed');
+      }
+    };
+    trackVisitor();
+  }, [sessionId]);
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
@@ -90,18 +122,61 @@ export default function App() {
     />
   );
 
-  const addProduct = (p: Product) => {
-    setLiveProducts(prev => [...prev, { ...p, id: Date.now() }]);
-    showToast(`Product ${p.name} created`);
+  // Global Notification Listener
+  useEffect(() => {
+    const channel = supabase
+      .channel('broadcast_notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications'
+      }, (payload) => {
+        const { message, type } = payload.new;
+        showToast(message, type || 'info');
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const addProduct = async (p: Product) => {
+    const newProduct = { ...p, id: undefined }; // Let DB handle ID if possible, or use Date.now()
+    const { data, error } = await supabase.from('products').insert([newProduct]).select();
+
+    if (error) {
+      showToast('Error adding product', 'info');
+      return;
+    }
+
+    if (data) {
+      setLiveProducts(prev => [...prev, data[0]]);
+      showToast(`Product ${p.name} created`);
+    }
   };
 
-  const updateProduct = (p: Product) => {
+  const updateProduct = async (p: Product) => {
+    const { error } = await supabase.from('products').update(p).eq('id', p.id);
+
+    if (error) {
+      showToast('Error updating product', 'info');
+      return;
+    }
+
     setLiveProducts(prev => prev.map(item => item.id === p.id ? p : item));
     showToast(`Updated ${p.name}`);
   };
 
-  const deleteProduct = (id: number) => {
+  const deleteProduct = async (id: number) => {
     const p = liveProducts.find(x => x.id === id);
+    const { error } = await supabase.from('products').delete().eq('id', id);
+
+    if (error) {
+      showToast('Error deleting product', 'info');
+      return;
+    }
+
     setLiveProducts(prev => prev.filter(item => item.id !== id));
     if (p) showToast(`Deleted ${p.name}`, 'info');
   };
@@ -480,6 +555,7 @@ export default function App() {
                 <ChatInterface
                   theme={theme}
                   onClose={() => setIsChatOpen(false)}
+                  sessionId={sessionId}
                 />
               )}
             </AnimatePresence>
