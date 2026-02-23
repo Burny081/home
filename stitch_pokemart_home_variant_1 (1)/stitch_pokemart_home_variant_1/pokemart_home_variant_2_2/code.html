@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokeMart Home Variant 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f45925",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#181311", 
+                        "surface-dark": "#271e1b",
+                        "surface-highlight": "#392c28",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "sans": ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Holographic gradient effect */
+        .holo-gradient {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+        }
+        
+        .holo-border {
+            position: relative;
+        }
+        .holo-border::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(45deg, #f45925, #a855f7, #3b82f6);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .neon-shadow {
+            box-shadow: 0 0 15px rgba(244, 89, 37, 0.15);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
+<div class="relative flex flex-col min-h-screen w-full max-w-md mx-auto bg-background-light dark:bg-background-dark pb-24">
+<!-- Sticky Navigation Bar -->
+<div class="sticky top-0 z-50 px-4 py-3 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-surface-highlight flex justify-between items-center">
+<button class="p-2 -ml-2 text-slate-900 dark:text-slate-100 rounded-full hover:bg-surface-highlight transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-gradient-to-tr from-primary to-orange-400 rounded-full flex items-center justify-center text-white font-bold">P</div>
+<h1 class="text-xl font-bold tracking-tight">PokeMart</h1>
+</div>
+<button class="relative p-2 -mr-2 text-slate-900 dark:text-slate-100 rounded-full hover:bg-surface-highlight transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-2.5 h-2.5 bg-primary rounded-full border border-background-dark"></span>
+</button>
+</div>
+<!-- Scrollable Content -->
+<main class="flex-1 w-full flex flex-col gap-6 p-4">
+<!-- Hero Section -->
+<div class="relative w-full overflow-hidden rounded-[2rem] holo-border neon-shadow group">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90 z-10"></div>
+<div class="w-full aspect-[4/5] sm:aspect-[16/10] relative">
+<img alt="Charizard trading card artwork glowing" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Charizard trading card artwork glowing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARX7se7s5FZb0Yk08V-vpFvHFxPtigxSaLaBok9rNdj6etHNb16vis9FBKr8MeSSEB8j9FqLkZ5VVSdOOr12cq6j4JT1jF7MGSgvGnf_Unz_-cuSZ1pyjPgu-TPP9v9hi2FWERYyk79kJaM4m9vFKvMU9bs-fpkhmra7Ir3slycuI4MkrYbcRBBmhUJgtuAzftM0Zjg8076vSPXSr1OAX0xJdstsshrsbn4OAoAw8C40OiIjj4hdFRCCPm7BHik7ZCOIhUilF4_ek"/>
+</div>
+<div class="absolute top-4 left-4 z-20">
+<span class="px-3 py-1 text-xs font-bold tracking-wider uppercase bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full">
+                        Featured Drop
+                    </span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 p-5 z-20 flex flex-col gap-3">
+<div class="space-y-1">
+<h2 class="text-3xl font-black leading-tight text-white drop-shadow-md">
+                            Phantasmal <br/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">Mega Charizard</span> UPC
+                        </h2>
+<p class="text-white/80 text-sm font-medium">Ultra Premium Collection • Limited Edition</p>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex flex-col">
+<span class="text-xs text-white/60">Current Bid</span>
+<span class="text-2xl font-bold text-white">$130.00</span>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-orange-600 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95">
+<span>Buy Now</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Categories / Tags Horizontal Scroll -->
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+<button class="flex-shrink-0 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-full shadow-lg shadow-orange-500/20">
+                    All Drops
+                </button>
+<button class="flex-shrink-0 px-5 py-2.5 bg-surface-highlight text-white/80 text-sm font-medium rounded-full border border-white/5 whitespace-nowrap hover:bg-surface-highlight/80 transition-colors">
+                    Booster Boxes
+                </button>
+<button class="flex-shrink-0 px-5 py-2.5 bg-surface-highlight text-white/80 text-sm font-medium rounded-full border border-white/5 whitespace-nowrap hover:bg-surface-highlight/80 transition-colors">
+                    Elite Trainer
+                </button>
+<button class="flex-shrink-0 px-5 py-2.5 bg-surface-highlight text-white/80 text-sm font-medium rounded-full border border-white/5 whitespace-nowrap hover:bg-surface-highlight/80 transition-colors">
+                    Vintage
+                </button>
+<button class="flex-shrink-0 px-5 py-2.5 bg-surface-highlight text-white/80 text-sm font-medium rounded-full border border-white/5 whitespace-nowrap hover:bg-surface-highlight/80 transition-colors">
+                    Singles
+                </button>
+</div>
+<!-- Masonry Grid -->
+<div class="columns-2 gap-4 space-y-4">
+<!-- Item 1 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full backdrop-blur-sm">
+                            S-Tier
+                        </span>
+</div>
+<div class="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Pokemon box art with purple galaxy theme" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtDU-4WRAG9dJMh0S2SfXr-Pm_RuAjWynDpw1U9pif4kvLVoyOUkuGomVLRtsoRBNDAn9YwgitmKaxjBV06BChShJit2nH-6fpOFziJTVmMverYiK4hnJ0Bin7QxRcHO3seVlL7oIg3MzXIF-faYnCeXJU96O80pNLj-ufQV4JRC4N-fJbmDuE2wxQEssqqhfF_43Lxs-bfNdqIu9lLTQtRSUhP7Wx59bnCV3gSVh5fVQGr9Qf_o99rsd7LEWCeHf9w2lQOVnXTio"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Temporal Forces</h3>
+<p class="text-primary font-bold">$210.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full backdrop-blur-sm">
+                            New
+                        </span>
+</div>
+<div class="w-full aspect-square rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Bright blue crystal themed booster box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-herAsRDosXz0yLoP55zbrJZSuihWZDfzGTou_bzX5IWj1U8KMm0EdClHiDhNhCHLMDj4tUk7Vi_e7exPvaFUhA-YAMF0xj1Nvo8PtAM7ozM5ZfrIhcPGg2KZL5bw04BhTqOO0mCZtSlXkcjp8bqWDLJnffBFhg8RcvdkXb_sy3vdw_wSLhyKkW9p92wqT-SJNGJ4tz4s6ghRVKchz4t6T7cq-iws58L69lCr0Kv1tfHUWAztEJiUJYZqrJFsOJVlZTlViP4k7yo"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Stellar Crown Box</h3>
+<p class="text-primary font-bold">$210.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-full backdrop-blur-sm">
+                            Vintage
+                        </span>
+</div>
+<div class="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Old school Pokemon card packaging" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9YJbamgpUrQ8gUE3vUpPmR2cE7HmZCsu2_KZE6SZsFBcDnYQWxO1leacsJ1ZYwKjxFMZHVHyGq37kABqvBPqP54GnoUzrgHFHpeSn1ZgwsSUsF5_eIs-OJ3F_-KNfDjrHDtpNb9iP9rF1Vfc8VX2vfierFG52UP4qeszccGe_1uvmxcZW79FeB2ELAyuJUt3b5w991-_EiPWlbsFxicEo0wzi2qGbwNgtvwHCujtp4UfY8jxg5nZ1CG_0ykNA1--5I9HwQarQk7s"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Team Rocket Returns</h3>
+<p class="text-primary font-bold">$900.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 4 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-green-500/20 text-green-300 border border-green-500/30 rounded-full backdrop-blur-sm">
+                            Pre-Order
+                        </span>
+</div>
+<div class="w-full aspect-[16/10] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="One Piece anime card game box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs4-wRSBccGQzN8vKWCIGAycsiuv585Ga3807aJXiQKkNsDGsc8K7zNz8Vz9xXVdgB1w9NQQ6l8KLw2RNrScuKOdiOVNd-4PNDyFf3lGenZR5wOM8YQJYWODTzXGNb_U30VGvg7Wa_WbBPBGOi3Evmc8Bt2YHUwXsNt5Mdl6OmpMj-FQtgTP99xfCJZ9gPOFMDOzzNn3HwGnUaajHtQhPqpdabszovmYOLkLgRvjB16XUpracFqH2tOcT6VpmVJ3vIhW42varJboU"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">OP-13 Booster Box</h3>
+<p class="text-primary font-bold">$260.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 5 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-full backdrop-blur-sm">
+                            Standard
+                        </span>
+</div>
+<div class="w-full aspect-square rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Colorful Pokemon ETB box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxVb2Ce6RfnOG_TG85CGSFn-7TVkRD8P7PtRcwIK1qKImnpc2_IqA54OPmv-J4M1NkSvA9ykGj1QXANeG1VwJM6ly0wy4oP5nzqHzrmAKHDcjEVIBFlEe8L-8aQIguzPvO1wIODtAKU5VJ0W0gAh64RqSA6VkHUwZPKcW2xzhWEaaxuMFXjMX4ci8his4kCQs_VN3j4pozTdbukqXzj1pdvxmm5DmakQedgbNZH6_2WKdVFTooTXUSu7I2rCWP2IIfq7kqbD9Ayys"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Paldea Evolved ETB</h3>
+<p class="text-primary font-bold">$45.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 6 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Japanese text Pokemon cards" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsO3NaOnTlugp27pdmV-LnrCEWaSctsz-NiSS73FUSTe42C-2V62UJpi_WPtrDRRHLy9PNk5kQ1hXJwAr1ESw0WYk8e06z9LaMAZy8nzZ1-XS7GtPT2ZzT3bEQXx_byUzDukwi1Ad8JKOKJmez2F6NAMddEVDAJne_0CSPUi8YdROj3xU3EuDYlo8IjPru1Ak8jVkl5Ffuf-TVD-VxKL9zGlkkVIvg60_Cv92qRgScBFjC7_4uXYXvj77QfGex1WGkL2czXdbAcsQ"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">JP 151 Booster</h3>
+<p class="text-primary font-bold">$180.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 7 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-red-500/20 text-red-300 border border-red-500/30 rounded-full backdrop-blur-sm">
+                            Hot
+                        </span>
+</div>
+<div class="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Mewtwo artwork card box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj2USPIU80QUcEnTX49rtvqtavW9NODtlYl_cYN3M16aql6Tq7cxN9Ihfp6Oncy59quudIkApOHaecx-pr-4ddolP8Lzf8sl1d5DDJBsXmazfxizOSzntXSUG4OKltSOxAmcPMOqTN8IE2GMqsvJd4MqYgQxCqqzbqjsTgWQfigfhy6_lzMlSolUT-WIFAOLKCZnUSlZSGiSAuR-zSpSMnmO0nPIAEDggQ8HsWhLHdBC5XFy9UMfvuuyjKsGhC1D4obQdwzIj4LgA"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Mewtwo Strikes Back</h3>
+<p class="text-primary font-bold">$120.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 8 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="w-full aspect-square rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Graded Pokemon card slab" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbTZy44VA58PSOiqKSP-oDKtthk0_EKY1XbUlwU_XQyXdi7gCvz3H7kK-QQJhK1mbBr363f873DUaPZaIOUsR8BZ5pPsHpcTRjwRf8asHU0S_8pJbBtPdWkJTXV8HtFl49Gv59Gvw58ApF3c-ZEaJNZkuoXEL76hm8NHWp2a7oCAHw5vZPFNHCXv4RWxGwL05QqaU0QsQq6qH1mEmcJLN2xxRC01W9ZinmX3zRaib6z_qu18I4PuF5tZjwzvQJkFT59x8ji8MNmUI"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">PSA 10 Lugia</h3>
+<p class="text-primary font-bold">$3,200</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 9 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Magic the Gathering commander deck" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSg7IOpGxioTqEtdzyGOJLH0P2kHem7W7Bb7UMo-yIVCqzEsjRKdzwW8pAM8HPHAAY2jg7HBq25V0MfFpl26Ym17KxGzgs1MnKZOojFCu_t2f1RxAC2GbX9t1W4uS1R7bicA7N90_fdb2bNbM_KvxZ-QFzzYRoeYHegQUqJAb3wpcNS2KvsFsV3wwuNoi7Mvj0DNLQkBOYzBDel_Lxa2oyP9BvUv3NrNzbS3kEQ5TOGJI3ESq7OMzn_jl8XbANi7PQ_loAyRc-Uws"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">MTG Commander</h3>
+<p class="text-primary font-bold">$75.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Item 10 -->
+<div class="break-inside-avoid bg-surface-dark rounded-[1.5rem] p-3 border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-3 left-3 z-10">
+<span class="px-2 py-1 text-[10px] font-bold uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-full backdrop-blur-sm">
+                            Rare
+                        </span>
+</div>
+<div class="w-full aspect-[16/10] rounded-2xl overflow-hidden bg-surface-highlight mb-3 relative">
+<img alt="Digimon trading card game box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpSr2Pe4BtIaPpYSZ7pgqzxUMmU24v3Vilx2xvw5AHhUbWpe7ccPDcrVBWzuyoLjupXdeMDwv0oYmkRMU3XFJH-wkoGWl8eYcH2pncY6-ctV_EO8gx4YplpMEk7FYmifY93WK8F4ujVYmmxOD8mu_VEf1gqIC93G_czWUc7CYrtHoQ2jUOzFmvKAgkeqmtt5MFT5v8x7srjUjgAd28panEsubV7R6rxZk9yFM77GACWAmItJXhz0ivc8nU-K1YlGY-AZZnniBq7hA"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-sm font-bold text-white leading-tight">Digimon TCG Special</h3>
+<p class="text-primary font-bold">$95.00</p>
+</div>
+<button class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-primary text-white rounded-full flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Floating Bottom Navigation -->
+<div class="fixed bottom-6 left-4 right-4 z-50">
+<div class="bg-surface-dark/90 backdrop-blur-xl border border-white/10 rounded-full h-16 px-6 flex items-center justify-between shadow-2xl shadow-black/50">
+<a class="flex flex-col items-center justify-center gap-1 text-primary w-12" href="#">
+<span class="material-symbols-outlined filled">home</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-white transition-colors w-12" href="#">
+<span class="material-symbols-outlined">search</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-white transition-colors w-12 relative" href="#">
+<div class="absolute top-0 right-1 w-2 h-2 bg-primary rounded-full"></div>
+<span class="material-symbols-outlined">gavel</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-white transition-colors w-12" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</div>
+</div>
+</div>
+</body></html>

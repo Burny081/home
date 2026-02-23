@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokeMart Home Variant 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f45925",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#221410",
+                        "surface-dark": "#2e1e1a",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto bg-background-light dark:bg-background-dark border-x border-surface-dark/50">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between bg-background-light/95 dark:bg-background-dark/95 px-4 py-3 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="h-10 w-10 rounded-full bg-surface-dark bg-center bg-cover border-2 border-primary" data-alt="User avatar with gaming headset" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUx_Z9LGOeaJLa2spWa6h_O5qMBo2c1hNNg7ArGCIyk7-sh0Bq_H61VPrgXrkyC48z40SHwfftkyoIAv6Bcj9NbVvdfoeh9ACT9iAZNp4SfHzFvIhJKuk-0hMKCQXtAEYPedxhy0B8NLQhaINMA_mmsLg-9PN4yU7a5lC_4Q3hsRbYPMOU6_Ar362JN7Xu8e7RWfYBewcO55k_z_qT4-dncJ2mqEBEqH7XlzabgVMhJrjy-zOuUjt75vsiJHNU0_Bc2drQ8u1j2Bo');"></div>
+<div class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-background-dark"></div>
+</div>
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Welcome back,</span>
+<span class="text-sm font-bold leading-none">AshKetchum99</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark text-slate-200 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark text-slate-200 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background-dark"></span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 pb-24 space-y-6">
+<!-- Live Auctions Section -->
+<section class="pl-4">
+<div class="flex items-center justify-between pr-4 mb-3">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<h2 class="text-lg font-bold tracking-tight">Live Auctions</h2>
+</div>
+<a class="text-xs font-semibold text-primary hover:text-primary/80" href="#">View All</a>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 pr-4 scrollbar-hide">
+<!-- Live Card 1 -->
+<div class="relative flex-shrink-0 w-36 overflow-hidden rounded-2xl bg-surface-dark group">
+<div class="aspect-[3/4] w-full bg-center bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Pokemon cards spread out on table" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnCTD4vr_XhaApDt-8qQ5M4xlLh_CC0H3XiI2OiaZttYwVetg67xmqnK_FeL7eEfCCaY-Xd2MxE--FwJFjDCyBJr8aETOwJYTDhI-XKY6Nn9uWaFlf5P6oDOPgZEdjO-27UUJcfAfJUA9k302Kez1m_-Jlu1efq53QI9NtFHrurH-Jq7xWd_jRDnaZUPbWSCu8wH1kIc9qzA-hSj0HiDVlxYBamxYg9iLTeU3LQxjlZXV9xFPu1BGKMDsy8wCOTfJ90sKmVxH-ETc');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+</div>
+<div class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 backdrop-blur-sm">
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">04:20</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="truncate text-xs font-medium text-slate-300">Base Set Booster</p>
+<p class="text-sm font-bold text-white">$420.00</p>
+</div>
+</div>
+<!-- Live Card 2 -->
+<div class="relative flex-shrink-0 w-36 overflow-hidden rounded-2xl bg-surface-dark group">
+<div class="aspect-[3/4] w-full bg-center bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Rare holographic Pokemon card close up" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAX2mxJfoC0LB9kxJ8L0CjtT9ma-ncjwvin_0X2Jq2pGN-ATttTJWH6ltnfwSb76t4jy03vwyC7PD8HXws_Z6oxpGs2CGjoV5n-PviXQrfjZwV9m1o5Xyjky_xabtI-o7IUztRtMAQGcJ0enQgmb5-JqdVy-EVbsAdXLnCz7pTpJpfXruOcqkDPYTDF4dacc7zWldmvXrdpmPm61ZTsLYOewCMDliE44Pb6jTD0FlKkPyxPevVQ8sk7kCXiVcLjw8Exsj5YISdZ1MM');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+</div>
+<div class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-slate-800/90 backdrop-blur-sm border border-slate-700">
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">12:05</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="truncate text-xs font-medium text-slate-300">Charizard VMAX</p>
+<p class="text-sm font-bold text-white">$185.00</p>
+</div>
+</div>
+<!-- Live Card 3 -->
+<div class="relative flex-shrink-0 w-36 overflow-hidden rounded-2xl bg-surface-dark group">
+<div class="aspect-[3/4] w-full bg-center bg-cover transition-transform duration-500 group-hover:scale-110" data-alt="Pikachu plush toy next to cards" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_qNhsxhfRQ9WNrRKmT23WiBxe1ZOv-SIZi5O8HRT7r5bUjsrx_QgeX3Hz1qdW-4yxjbUcEnEMcWkIwF-l9MrLCFji0cUTyGjOz3wFp5MBr5qewG-PvC99boVD8xFlZOWlf7-e1cG5kw2JLRNBPP9sRAF96BTS2atbwDpCaPY5kXsgK_sqIh9hcixIBd8V_nE59vIVhZ0LsEYLkBSh-cTMt3KlrSU8ZXJ-New16RZKI_lgj2Us6dstkzneohyQbmXHoez_nIWanx8');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+</div>
+<div class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-slate-800/90 backdrop-blur-sm border border-slate-700">
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">01:45</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<p class="truncate text-xs font-medium text-slate-300">PSA 10 Pikachu</p>
+<p class="text-sm font-bold text-white">$850.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recently Sold Ticker -->
+<section class="border-y border-surface-dark bg-surface-dark/30 py-2 overflow-hidden">
+<div class="flex animate-marquee whitespace-nowrap gap-8">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-green-500 text-sm">check_circle</span>
+<span class="text-white font-medium">Evolving Skies BB</span> sold for <span class="text-primary font-bold">$450</span> • 2m ago
+                    </div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-green-500 text-sm">check_circle</span>
+<span class="text-white font-medium">Moonbreon Alt Art</span> sold for <span class="text-primary font-bold">$620</span> • 5m ago
+                    </div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-green-500 text-sm">check_circle</span>
+<span class="text-white font-medium">Lost Origin ETB</span> sold for <span class="text-primary font-bold">$45</span> • 8m ago
+                    </div>
+</div>
+</section>
+<!-- Main Feed -->
+<section class="px-4 space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xl font-bold tracking-tight">Trending Now</h2>
+<div class="flex gap-2">
+<button class="p-1 rounded-lg bg-surface-dark text-slate-400 hover:text-white">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+</button>
+<button class="p-1 rounded-lg bg-transparent text-slate-600 hover:text-white">
+<span class="material-symbols-outlined text-lg">list</span>
+</button>
+</div>
+</div>
+<!-- Product 1 -->
+<div class="bg-surface-dark rounded-[2rem] overflow-hidden shadow-lg border border-white/5">
+<div class="relative h-48 w-full">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Red and black abstract gaming background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB6Ncxy3lUMbKOq3bEy-iviIRuBtb3ur2NmWNGuBdsJwZpb7cLBmGP0wgdhamKfLBAfAEu8aCuBz1LQ8_XqX_NHfMboMMcZudf_sFeL4lfz576-yGyhiDLJimtCB5cR4fHs0CBQ-j2Rw9UJIX5mXcVLNIOgTc2WLcasMDGNGp9lEbhhjtlDm3t3DFg1QYLMOGYez5TID-EA43cW_HKhqj2FRocXheEkoeKxZkvxEzaQWg3bfkVvg51t0aRpErk1rBuRY3TUYzlHNzs');"></div>
+<div class="absolute top-4 right-4">
+<button class="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Mint Condition</span>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-lg font-bold text-white mb-1">Rebel Clash Booster Box</h3>
+<div class="flex items-center gap-1.5 text-slate-400">
+<span class="text-xs">Sold by</span>
+<div class="flex items-center gap-1 text-slate-200 text-xs font-semibold">
+                                        PokeKing
+                                        <span class="material-symbols-outlined text-primary text-[14px]" title="Verified Seller">verified</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="block text-2xl font-extrabold text-primary">$350</span>
+</div>
+</div>
+<button class="mt-3 w-full py-3 rounded-xl bg-slate-100 text-slate-900 font-bold text-sm hover:bg-white transition-colors flex items-center justify-center gap-2">
+                            Buy Now
+                        </button>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="bg-surface-dark rounded-[2rem] overflow-hidden shadow-lg border border-white/5">
+<div class="relative h-48 w-full">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Purple and teal abstract energy background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXBBYHIOfGr7cfdwWth2TKNEWlgJa5rgrOjSZGB2zwlDwmbxnj_KIBpe2Z_4BvypH3_P7dfpQIEGseMFmW2lrj_KUiiWyH8SIRGjiSWDAyRO29_WeQfvt98rc3VnfOnQZVuN_-UjJxBMXY2ZIIsGZNuNgpGph2FTO6SZKsS-ERYt6Bbio-YePQ_TpUj7aVGDeXOQs3agqmTQzo8D2cimEoeoWS-fIrdOLyI0gD0OMwmJVly7zUU8D1bLueyed-OfV9CGS2a4zv7_g');"></div>
+<div class="absolute top-4 right-4">
+<button class="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Factory Sealed</span>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-lg font-bold text-white mb-1">Twilight Masquerade BB</h3>
+<div class="flex items-center gap-1.5 text-slate-400">
+<span class="text-xs">Sold by</span>
+<div class="flex items-center gap-1 text-slate-200 text-xs font-semibold">
+                                        TCG_Master
+                                        <span class="material-symbols-outlined text-primary text-[14px]" title="Verified Seller">verified</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="block text-2xl font-extrabold text-primary">$230</span>
+</div>
+</div>
+<button class="mt-3 w-full py-3 rounded-xl bg-slate-100 text-slate-900 font-bold text-sm hover:bg-white transition-colors flex items-center justify-center gap-2">
+                            Buy Now
+                        </button>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="bg-surface-dark rounded-[2rem] overflow-hidden shadow-lg border border-white/5">
+<div class="relative h-48 w-full">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Minimalist grey and white geometric pattern" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLnvFNDKHtlMCHRZ2MJdMjXS4O92A8NKbB6PUrg9QTmJbQPTVN7Fu7VwFzApczHJccDEqFxjG1Q5voS8G6it5C6BzBXJLp_t9C55JeA3qPJsbgx7FYy9TOaryvX8D-VGy7Sz-JzXj1RKZcwGjDXVTNVuDkY1NkXI6BGlHi7TzjscM2PCJ6SfLo-e3DOaDDIV7PGETxzT6KeitSY7AwNlm_kSfk5YizKApKfkXF77UDk8r1H2aeyfqb3f3LZnAE_NIIaJ9KCuDPMlE');"></div>
+<div class="absolute top-4 right-4">
+<button class="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-primary hover:scale-110 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Pre-Order</span>
+</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-lg font-bold text-white mb-1">151 PC ETB</h3>
+<div class="flex items-center gap-1.5 text-slate-400">
+<span class="text-xs">Sold by</span>
+<div class="flex items-center gap-1 text-slate-200 text-xs font-semibold">
+                                        AshKetchum
+                                        <span class="material-symbols-outlined text-primary text-[14px]" title="Verified Seller">verified</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="block text-2xl font-extrabold text-primary">$150</span>
+</div>
+</div>
+<button class="mt-3 w-full py-3 rounded-xl bg-slate-100 text-slate-900 font-bold text-sm hover:bg-white transition-colors flex items-center justify-center gap-2">
+                            Buy Now
+                        </button>
+</div>
+</div>
+<!-- Grid Layout for smaller items -->
+<div class="grid grid-cols-2 gap-4 pt-2">
+<!-- Product 4 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Charizard card art detail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBEiWmfoWijdJGcGEZCPf6UneEt6pXxkrYg3SPYT54Y6L5N0Knlx4Mii8YPu5cPbLuTmmdISCw5-06HGIbLnf22yU8MwmYrTMlfWOSsh7qrcqHOtoHtxmMC0px4T9Vr42SXeEV6dquit033rbh7XW73WRUHEkGcwiuue0-btA0b5zj-TjDJQRMTDREuTT9BzkGzIc0Jtb1vfOT6nqk5sJ9VdN55XOWqRCvrtr5LiZaeXQIK5p4kE5Ni5ElstaJbaHMswM-s0dHd1u0');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Charizard UPC</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$110</span>
+<span class="text-[10px] text-slate-400">Used</span>
+</div>
+</div>
+</div>
+<!-- Product 5 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Abstract swirl purple and black" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC-Ahme0hZFMdgcQMV79xhnGtbR2ONZT_7gDTUMbqjoEiPqu-ZeSlv9v2DittgjCavYTrl7Exvyg5zWBMaOcPXkvMScjWk1bvLnUjZioqi2V0O9VS2Dl21o8CJ-oL3zhHvy1N1oj4W5NfFEjHPJdJplPacOwqokrnyqNociYA_XzMKC7sXdP7ROafrv3mFWdeY-KyTFrt-qAw3P_YNpTQC-ZV-kQp3YGtmdT38jBE_jlWvBh_PZIwqNvGr2AP-VbbgHqYu35FmwLF4');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Lost Origin BB</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$180</span>
+<span class="text-[10px] text-slate-400">New</span>
+</div>
+</div>
+</div>
+<!-- Product 6 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Pink and blue fusion energy light" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCCMxZjd9SskQf3zz3E7fttNq744911CstIT5jVoNs-uYLxz45l5oEGLgcPKFLUIww3SJQmqqZ3HHpjEMtNV97Ocw8WHWoq7X-PWmNoGcy64pB5gx5NboDarWxKnirXSxcxLACk8k_tUI22JUsjBqLAHmM7UQlUfQ7uyjEoGyYqqLYB0y4F6gad9EPnZy23Mt0s-s7cczE8Z0ZNtgNSA4KJtp5giLpfZ3oT6EpkIMj7xVaZ_6sdowYb3MlrI8ml3nLCI5y-ydOYAvg');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Fusion Strike BB</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$140</span>
+<span class="text-[10px] text-slate-400">New</span>
+</div>
+</div>
+</div>
+<!-- Product 7 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Vintage textured paper background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCKNy7C27dkql_ZU4A5GjRd44zTVH-LAS2IcHWwsgnwhXibY9sgY0lnJWYqotEt_D_B58ibfGEcta8Ai1z6HYo3Mv01qqnKjpfaKzI0jmd19z3LRlfx1K4iOgHrR1p0bQxdl4bltiFm-noAox5G6dJdszFSnKXMSSizLQ_hReEYk-h_UH5bZUZ2J7RVBj0MmgFH569uTurawjudNaTWogcrKTXwONB6LWJ7CJcgQtxqLSBr1w8Srypvyyh4dPy_0W5X10KUGqHuA2g');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Team Rocket Pack</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$250</span>
+<span class="text-[10px] text-slate-400">Vintage</span>
+</div>
+</div>
+</div>
+<!-- Product 8 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Dark silhouette of Umbreon shape" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBwmaZXaiypybQVEguHdT7gjLIU-tnoUMh5sDsHmv9OzYZV257vhGQh48eEzMHXlmHUWqqieS96o5GYNnFTi91mRN5kENb_5SOgyZHRoqJdtm3y2VTZnccZutuFQcO0P-iVNlx1oaTj0gQMm_KNFjJKbvODUXBWPL5oVCIV745dpbHUwALRPLfa4bur7jhYIE8sJLaEFOS4J1ZuAogVaCL3hXVyNG6tpmXR9Xaec7eCRI8YFkuMlDjWLuEhLUepeSVC0hyk9jTKguo');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">PSA 10 Umbreon VMAX</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$800</span>
+<span class="text-[10px] text-slate-400">Graded</span>
+</div>
+</div>
+</div>
+<!-- Product 9 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Silver metallic texture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfJFvvcEkRB2xaqSGFM4WYEr9TX3lwQk4nc-kh_EN2XFI0h4s2TkRwSMNeM7Jtgd_xzPBZT3KXap4wq4f5TPv3ruvc1ogK0H49W1-dFZtW_pfbEbzni3svas1D1j5Iog9wfWyjxwsr2smktZdl6B_3TSywreoy-cSpmW7PH8rEbxSoKivunF_iBQODhqmQpuHm76rxqMkz9-PW6RDRErAEnrd9W7jk10AWUXwx7LYZPSeO7dmmqD0AMvoDuAkHVZ3QWnF4Uf-BjF0');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Silver Tempest ETB</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$45</span>
+<span class="text-[10px] text-slate-400">New</span>
+</div>
+</div>
+</div>
+<!-- Product 10 -->
+<div class="bg-surface-dark rounded-2xl overflow-hidden shadow border border-white/5">
+<div class="aspect-square bg-cover bg-center" data-alt="Green landscape Paldea style" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAx52nRq4HnwtkcP2OpcKloZsiKobg6weEkIhMabe3AimDxF_wzTWrMveLJZUcb58SGV2M8bRk9CY_IbmBbqVRnXNsqRrYrviBaBAorq232Twjc6yr9_z8wi-v0f8UawVho9fAIxAWIPdKSgQxbqZR2d17E2EC3Wy7ZxrLGiQ2i3wvVLuALnHQoo9J08aycDzJdBRuxa94xVg8wUW2YmSxpnHa09tAMDLjZeM-_4Rf7Ob6sHcXVQ2aKVKYWDVC22tey8_esMv5-Ndo');"></div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-white truncate">Paldea Evolved BB</h4>
+<div class="flex justify-between items-center mt-1">
+<span class="text-base font-bold text-primary">$105</span>
+<span class="text-[10px] text-slate-400">New</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-4 flex justify-center">
+<button class="px-6 py-2 rounded-full border border-slate-700 text-slate-300 text-sm font-medium hover:bg-surface-dark transition-colors">
+                        Load More Products
+                    </button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5 pt-0 bg-transparent pointer-events-none max-w-md mx-auto">
+<div class="pointer-events-auto flex items-center justify-between rounded-full bg-[#181311]/95 backdrop-blur-xl border border-white/10 px-6 py-3 shadow-2xl">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined filled">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center -mt-8" href="#">
+<div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:scale-105 transition-transform border-4 border-background-dark">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</div>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="text-[10px] font-medium">Inbox</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+</div>
+<style>
+        .material-symbols-outlined.filled {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+        }
+    </style>
+</body></html>

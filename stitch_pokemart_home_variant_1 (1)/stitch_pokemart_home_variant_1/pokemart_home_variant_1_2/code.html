@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokeMart Home Variant 1</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f45925",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#221410",
+                        "surface-dark": "#2e1e1a", // Slightly lighter than background-dark for cards
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark pb-20">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/5 pb-2">
+<div class="flex items-center justify-between px-5 pt-4 pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">capture</span>
+<h1 class="text-2xl font-extrabold tracking-tight">PokeMart</h1>
+</div>
+<button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark/10 dark:bg-white/10 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-white">notifications</span>
+<span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background-light dark:ring-background-dark"></span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="px-5 pb-2 pt-1">
+<div class="group relative flex items-center">
+<span class="absolute left-4 text-slate-400 group-focus-within:text-primary transition-colors material-symbols-outlined">search</span>
+<input class="h-12 w-full rounded-full border-none bg-surface-dark/5 dark:bg-surface-dark pl-12 pr-4 text-sm font-medium placeholder-slate-500 focus:ring-2 focus:ring-primary/50 transition-all dark:text-white" placeholder="Search cards, boxes, bundles..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col gap-6 pt-6">
+<!-- Trending Section (Horizontal Scroll) -->
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between px-5">
+<h2 class="text-xl font-bold">Trending Now</h2>
+<button class="text-sm font-semibold text-primary">See All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto px-5 pb-4 no-scrollbar snap-x snap-mandatory">
+<!-- Trending Item 1 -->
+<div class="snap-start relative flex min-w-[280px] flex-col overflow-hidden rounded-[2rem] bg-surface-dark/5 dark:bg-surface-dark shadow-sm">
+<div class="relative h-40 w-full overflow-hidden">
+<img alt="Pokemon Booster Box Pack Art with electric sparks" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFQ1chZlefhjPf8KHvq_BI0UrRA9zqcM5DOJfiM3NH7g8XD83Jgy-yclrXepmtlITdwFnQ9hAr_3hNQ0FJdsR6rszO9O2RMAV3ePegrTSbmyPNsgpqrv-JMRHgLtryensit4S8ItbVIwYIJFRsb1Ip8XRWZ6fDGXCrt4UgNStInZ8xNmIvVwJuP1DMtT_x1tEeSKXT9uow13dukshskRjTenef2dCvfZR0mBGztSqxEXWZImW1ybdVbCQI2yootvlwntlhhC_9_JA"/>
+<div class="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-white shadow-lg">
+                                Hot
+                            </div>
+</div>
+<div class="flex flex-col gap-1 p-4">
+<h3 class="text-lg font-bold line-clamp-1">Surging Sparks Booster Box</h3>
+<div class="flex items-center justify-between">
+<span class="text-xl font-extrabold text-primary">$220.00</span>
+<button class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Trending Item 2 -->
+<div class="snap-start relative flex min-w-[280px] flex-col overflow-hidden rounded-[2rem] bg-surface-dark/5 dark:bg-surface-dark shadow-sm">
+<div class="relative h-40 w-full overflow-hidden">
+<img alt="Pokemon 151 Mew Collection box art" class="h-full w-full object-cover transition-transform duration-500 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASuxP3_N7XeoPvnwY3Nw2Z5I9zVj_Ei37kCRkl1rbRUxLSB0QBy88uf3WQUom4MUf-IPDfjtbBlO-coZQGEEgrp48PABXvW0cEktFX7rDYY4uYBPbA-edy2ZHOoDXhNwt6LxlNa8Z_FD1fMC05EcYDdmZDS6s6tMhUl3b4nC9w16cO6U3axmOo7JUwgjab9KCGAP_YOmk4joAJ7CJCdmdn7OJ1e5Q9h19CwGzG9i5Ns3I3Fh4OKsDHeK6-pSXTkC6Mpt1uMrmURjk"/>
+<div class="absolute top-3 left-3 rounded-full bg-blue-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                                Best Seller
+                            </div>
+</div>
+<div class="flex flex-col gap-1 p-4">
+<h3 class="text-lg font-bold line-clamp-1">Scarlet &amp; Violet 151 Bundle</h3>
+<div class="flex items-center justify-between">
+<span class="text-xl font-extrabold text-primary">$45.00</span>
+<button class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Grid -->
+<section class="flex flex-col gap-3 px-5">
+<h2 class="text-xl font-bold">New Arrivals</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Product Card 1 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Destined Rivals Booster Box shiny packaging" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB73k57hYy7KAPSZVm7YPATMBmR4Ar0SGSueN_7f60pXW1vaqn677SvFX0YrKrfEGBWcxAQdlu5ovIUGmcZldRicQ10XWxATw6AmYYMvLoqL62_W8KALr52rCcBWBv7-akEa1tSmlDOrk7LcGpIxGLJd-QyqL4vdP9RR-AbG_oXvxz8J6dB29XVAI7_N4tMaJ-vyicuK0xsonDB440tkVib_Ln3lTzUig60HWAdattI_pJeSOQ3BwPX1Fz-WpkGLjrlQewtNnGp4M0"/>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-transform active:scale-95">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Destined Rivals Booster Box</h3>
+<p class="mt-1 text-lg font-bold text-slate-900 dark:text-white">$180.00</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Temporal Forces Elite Trainer Box green design" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr-0nF_DQaI41Jg9R8KvZoo8xQXu_gVCmroZxjNFCPJffcAugLRjdrnHpOdGm7i6ThE_69QIzu3k-eQ15GkEhueunnaLjV9yqAmN_Y_J32LE4tmaDWlthm1sQZIEmgpcfimz8nEnRbnqvhsP50tXgtvHmFy9VY2wmm3IEi2qq-Y_dc6QzRefSEl9wpnV3VLdwjR9Rs_UTPe9btCO3gMwcF_n2q023yn1fbZqw0zC0aMqxARZYw_IsrEqu_db_qq7mSGv-1cBwqmHY"/>
+<div class="absolute top-2 left-2 rounded-full bg-red-500/90 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                                Sale
+                            </div>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-surface-dark text-slate-900 dark:text-white shadow-lg hover:bg-primary hover:text-white transition-colors active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Temporal Forces ETB</h3>
+<p class="mt-1 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+                                $49.99
+                                <span class="text-xs font-normal text-slate-400 line-through">$59.99</span>
+</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Charizard ex SIR Single Card close up" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_fcO04dRUib6ELASPyvmuyyVoVvgM4B75fdCJnbFM5z4ZTZXpc7QJNreYAI9fTKe203Of8TQ6FAscErbC85smSFjIWZU7fHVUcvAHaFLPbn4S4tbg3Lu4cPobn7MILCTou0E3wfFqyeMEvy7EjQmcDLFdYcUfRUwISf8psUEC-TyJeBx_VBN5FsGLdeSqysgNPmzXdDyVvhM0EOuX_3IQr3WwnvneYo2P6_Qwv3Dtko2_mM1VmL08rbxgwPVrlsQKzCIsn_iZqnk"/>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-surface-dark text-slate-900 dark:text-white shadow-lg hover:bg-primary hover:text-white transition-colors active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Charizard ex SIR (Single)</h3>
+<p class="mt-1 text-lg font-bold text-slate-900 dark:text-white">$115.00</p>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Pikachu Illustrator Rare Card artwork" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0zNUwmRHpTOjokAWeJ2EHaQYJ-gz4AlOnGd862dus1bSpVvps0XwpV_tt9kBMSQdt4kdAP3FYblmEK7xrfjmf-rbcuHDMuk0MbgqCdH6K0HzHotngUJ3bhGYuRQdfY19G6M_VIcF2GzvicC5KdV-KpqbWl3SbxifGx2PjjrCfrZ_CzRyYPZd1CHRJ-eywqo9zy2eAiGmOD5bSXwYSExVIpjEYSNvwKmGw0BfPx46EUwomkhx4tsALNCF-EHYa_el12WQGZvDOllI"/>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-surface-dark text-slate-900 dark:text-white shadow-lg hover:bg-primary hover:text-white transition-colors active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Pikachu Illustrator Promo</h3>
+<p class="mt-1 text-lg font-bold text-slate-900 dark:text-white">$5,000.00</p>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Evolving Skies Booster Pack with dragon art" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs496DuBknrF-vV11EzPLSWKIsUWZVyAC3YI-Jnll8oABTqR2TpVcCLr6MYSjF0S9G9tE-IzK1dX3Hr3BKqrS1XlblHHaGbGgKE5Q0B7wtj4t1DZ0dExpATXwjC2O7BL419UoWX_kBw6sGQN1HDiMws5CKNhB6KXG3DlWhgrUu_CyuI1nvyy1r-UW8OUcB3RH9zb3eg45IY6njlJ3hJv6EgtWsTMXTEdw8JUE6Qus1_10rzsp0yO8Up0-DWOJ77EPwdp61-89iAGs"/>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-surface-dark text-slate-900 dark:text-white shadow-lg hover:bg-primary hover:text-white transition-colors active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Evolving Skies Booster</h3>
+<p class="mt-1 text-lg font-bold text-slate-900 dark:text-white">$12.99</p>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group relative flex flex-col gap-3 rounded-[1.5rem] bg-surface-dark/5 dark:bg-surface-dark p-3 transition-all hover:-translate-y-1">
+<div class="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] bg-white dark:bg-[#1a1412]">
+<img alt="Lost Origin Giratina Artwork box" class="h-full w-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6d9yH_5rvEK4eC9nmKyazSQRcz49e7c3bzfg888H975D8_w9zhzDg-s9R57JL5Ajj-ilHHd-MTE-z_G7cFkGyZJzU482qW0SvwMzyhcLPjeQ13eHXRdNdhYlVV7of492YJ5yo50DE5YERO30ruJ7KFIn1_uUkNsmbpFysgwX4HwYGkW3FxMlRCuoyIyWATfSDsFGi5XMQt76ZLBlndXAR_vMNtSUUmvzMaPpd0_Mt2-BkRBT8NQ1xpc3-8tlD-sjYUciDj6ftvIk"/>
+<div class="absolute top-2 left-2 rounded-full bg-purple-500/90 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                                Rare
+                            </div>
+<button class="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-surface-dark text-slate-900 dark:text-white shadow-lg hover:bg-primary hover:text-white transition-colors active:scale-95">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="px-1 pb-1">
+<h3 class="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200 line-clamp-2">Lost Origin Build &amp; Battle</h3>
+<p class="mt-1 text-lg font-bold text-slate-900 dark:text-white">$24.99</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 z-50 w-full max-w-md border-t border-black/5 bg-background-light dark:border-white/5 dark:bg-[#181311]">
+<div class="flex h-16 items-center justify-around px-2">
+<a class="group flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined filled text-[26px]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</a>
+<a class="group flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-[#baa39c] hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[26px]">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</a>
+<a class="group flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-[#baa39c] hover:text-primary dark:hover:text-primary transition-colors relative" href="#">
+<div class="relative">
+<span class="material-symbols-outlined text-[26px]">shopping_cart</span>
+<span class="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white">2</span>
+</div>
+<span class="text-[10px] font-medium">Cart</span>
+</a>
+<a class="group flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-[#baa39c] hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[26px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+<!-- Home Indicator -->
+<div class="flex justify-center pb-2 bg-background-light dark:bg-[#181311]">
+<div class="h-1 w-32 rounded-full bg-slate-300 dark:bg-white/20"></div>
+</div>
+</nav>
+</div>
+</body></html>

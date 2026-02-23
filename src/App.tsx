@@ -13,6 +13,7 @@ import SplashScreen from './SplashScreen';
 import ProductDetailModal from './components/ProductDetailModal';
 import CartView from './components/CartView';
 import AdminDashboard from './components/AdminDashboard';
+import HighEndHome from './components/HighEndHome';
 import { PRODUCTS, CATEGORIES, FEATURED_IMAGES } from './data/products';
 import { Product, CartItem } from './types';
 
@@ -146,124 +147,7 @@ export default function App() {
   };
 
   const renderHome = () => (
-    <>
-      {/* === PREMIUM HERO CAROUSEL === */}
-      <div className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl shadow-blue-900/20 h-[24rem] md:h-[32rem] mb-12 group">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentHeroIndex}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] group-hover:scale-110"
-              style={{ backgroundImage: `url('${FEATURED_IMAGES[currentHeroIndex]}')` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-            <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-10">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <span className="mb-4 inline-block rounded-full bg-blue-600 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white shadow-lg border border-blue-400/30">
-                  Premium Asset {currentHeroIndex + 1}
-                </span>
-                <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white drop-shadow-2xl mb-6 leading-none">
-                  UNLEASH THE<br />POWER OF TCG
-                </h2>
-                <button
-                  onClick={() => setCurrentView('shop')}
-                  className="group flex items-center gap-3 rounded-2xl bg-white px-10 py-5 text-base font-black text-blue-600 hover:bg-blue-50 transition-all shadow-xl active:scale-95"
-                >
-                  Shop the Vault <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </motion.div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Carousel Indicators */}
-        <div className="absolute bottom-10 right-10 flex gap-2 z-20">
-          {FEATURED_IMAGES.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => { e.stopPropagation(); setCurrentHeroIndex(i); }}
-              className={`h-1.5 transition-all rounded-full ${currentHeroIndex === i ? 'w-8 bg-blue-500' : 'w-2 bg-white/40 hover:bg-white/60'}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* === IMAGE SHOWCASE STRIP (all 5 images) === */}
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h3 className="text-2xl font-black text-slate-900 italic uppercase">Featured Collections</h3>
-            <div className="h-1 w-10 bg-blue-600 rounded-full mt-1" />
-          </div>
-          <button onClick={() => setCurrentView('shop')} className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-            See all <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-          {FEATURED_IMAGES.map((imgUrl, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ scale: 1.05, y: -4 }}
-              onClick={() => { setCurrentHeroIndex(idx); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className={`group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all border-2 ${currentHeroIndex === idx ? 'border-blue-500 bg-blue-50/10' : 'border-gray-100 bg-slate-50'}`}
-            >
-              <img
-                src={imgUrl}
-                alt={`Premium asset ${idx + 1}`}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover p-1 transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-opacity px-1">
-                <span className="text-[9px] font-black text-white uppercase tracking-tighter bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-lg border border-blue-400/20">
-                  Featured #{idx + 1}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* === QUICK FILTERS === */}
-      <div className="mb-10">
-        <h3 className="text-2xl font-black text-slate-900 italic uppercase mb-4">Quick Filters</h3>
-        <div className="flex gap-3 overflow-x-auto pb-3 no-scrollbar">
-          {CATEGORIES.map((cat) => (
-            <button key={cat.id}
-              onClick={() => { setActiveCategory(cat.id); setCurrentView('shop'); }}
-              className={`flex-none rounded-2xl px-5 py-3 text-sm font-bold transition-all border-2 ${activeCategory === cat.id && currentView === 'shop' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-slate-500 hover:border-blue-200 hover:text-blue-600'}`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* === TRENDING GRID === */}
-      <div className="mb-20">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-black text-slate-900 italic uppercase">Trending Now</h3>
-          <button onClick={() => setCurrentView('shop')} className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg">View all <ChevronRight className="w-4 h-4" /></button>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {PRODUCTS.filter(p => p.badge === 'HOT' || p.badge === 'NEW' || p.badge === 'RARE' || p.badge === 'VAULT' || p.badge === 'ELITE' || p.badge === 'LIMIT').slice(0, 8).map(renderProductCard)}
-        </div>
-      </div>
-    </>
+    <HighEndHome onAddToCart={addToCart} onProductClick={setSelectedProduct} />
   );
 
   const renderShop = () => (
