@@ -16,6 +16,9 @@ import CartView from './components/CartView';
 import AdminDashboard from './components/AdminDashboard';
 import AdminAuthModal from './components/AdminAuthModal';
 import HighEndHome from './components/HighEndHome';
+import SettingsView from './components/SettingsView';
+import ChatInterface from './components/ChatInterface';
+import CheckoutModal from './components/CheckoutModal';
 import { PRODUCTS, CATEGORIES, FEATURED_IMAGES } from './data/products';
 import { Product, CartItem } from './types';
 
@@ -44,6 +47,8 @@ export default function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
     return sessionStorage.getItem('admin_authenticated') === 'true';
   });
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -67,6 +72,23 @@ export default function App() {
   }, [liveProducts]);
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
+
+  const cartTotal = useMemo(() => {
+    const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const discount = totalItems >= 20 ? subtotal * 0.1 : 0;
+    const shipping = (subtotal - discount) > 150 ? 0 : 9.99;
+    return (subtotal - discount) + shipping;
+  }, [cartItems]);
+
+  const renderSettings = () => (
+    <SettingsView
+      theme={theme}
+      onToggleTheme={toggleTheme}
+      onClose={() => setCurrentView('home')}
+      onLockAdmin={handleLockAdmin}
+    />
+  );
 
   const addProduct = (p: Product) => {
     setLiveProducts(prev => [...prev, { ...p, id: Date.now() }]);
@@ -230,6 +252,7 @@ export default function App() {
       onToggleFavorite={(p) => toggleFavorite(p.id)}
       favorites={Array.from(favorites)}
       theme={theme}
+      onShopClick={() => setCurrentView('shop')}
     />
   );
 
@@ -412,10 +435,16 @@ export default function App() {
                     {currentView === 'shop' && renderShop()}
                     {currentView === 'favorites' && renderFavorites()}
                     {currentView === 'auctions' && renderAuctions()}
-                    {currentView === 'portfolio' && renderPortfolio()}
+                    {currentView === 'settings' && renderSettings()}
                     {currentView === 'profile' && renderPortfolio()}
                     {currentView === 'cart' && (
-                      <CartView cartItems={cartItems} onRemove={removeFromCart} onChangeQty={changeQty} onShop={() => setCurrentView('shop')} />
+                      <CartView
+                        cartItems={cartItems}
+                        onRemove={removeFromCart}
+                        onChangeQty={changeQty}
+                        onShop={() => setCurrentView('shop')}
+                        onCheckout={() => setIsCheckoutOpen(true)}
+                      />
                     )}
                     {currentView === 'admin' && (
                       <AdminDashboard
@@ -432,6 +461,28 @@ export default function App() {
                 )}
               </motion.div>
             </AnimatePresence>
+
+            {/* Overlays */}
+            <AnimatePresence>
+              {isCheckoutOpen && (
+                <CheckoutModal
+                  isOpen={isCheckoutOpen}
+                  onClose={() => setIsCheckoutOpen(false)}
+                  onOtherMethod={() => {
+                    setIsCheckoutOpen(false);
+                    setIsChatOpen(true);
+                  }}
+                  total={cartTotal}
+                  theme={theme}
+                />
+              )}
+              {isChatOpen && (
+                <ChatInterface
+                  theme={theme}
+                  onClose={() => setIsChatOpen(false)}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </main>
 
@@ -440,10 +491,8 @@ export default function App() {
           <div className="flex justify-around items-center h-16 px-2">
             {[
               { id: 'home', icon: Home, label: 'Home' },
-              { id: 'shop', icon: ShoppingBag, label: 'Shop' },
               { id: 'favorites', icon: Heart, label: 'Favs' },
-              { id: 'cart', icon: ShoppingBag, label: 'Cart', badge: cartCount },
-              { id: 'portfolio', icon: BarChart3, label: 'Value' },
+              { id: 'settings', icon: Settings, label: 'Settings' },
             ].map(item => (
               <button key={item.id} onClick={() => setCurrentView(item.id)}
                 className={`flex flex-col items-center justify-center gap-1 w-full transition-all active:scale-90 ${currentView === item.id ? (theme === 'dark' ? 'text-amber-400' : 'text-blue-600') : theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}

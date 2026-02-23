@@ -1,7 +1,7 @@
 import React from 'react';
 import { Product } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp } from 'lucide-react';
+import { Plus, Package, TrendingUp, Heart, ShoppingBag, ArrowRight } from 'lucide-react';
 
 interface HighEndHomeProps {
     products: Product[];
@@ -10,9 +10,10 @@ interface HighEndHomeProps {
     onToggleFavorite: (product: Product) => void;
     favorites: number[];
     theme: 'light' | 'dark';
+    onShopClick: () => void;
 }
 
-const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProductClick, onToggleFavorite, favorites, theme }) => {
+const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProductClick, onToggleFavorite, favorites, theme, onShopClick }) => {
     // Filter products for different sections using live products list
     const auctionProduct = products.find(p => p.id === 13) || products[0];
     const liveVaultProducts = products.slice(0, 10);
@@ -23,6 +24,31 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
     return (
         <div className={`flex-1 flex flex-col w-full pb-24 font-['Plus_Jakarta_Sans',sans-serif] transition-colors duration-500 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'}`}>
             <div className="max-w-7xl mx-auto w-full px-4 md:px-8">
+                {/* 0. LET'S SHOP CTA */}
+                <div className="pt-8 pb-4">
+                    <button
+                        onClick={onShopClick}
+                        className={`w-full group relative overflow-hidden rounded-3xl p-6 transition-all active:scale-[0.98] border shadow-2xl ${isDark ? 'bg-[#121212] border-white/5 hover:border-blue-500/30' : 'bg-white border-gray-100 hover:border-blue-500/30'}`}
+                    >
+                        <div className="flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                                    <ShoppingBag className="w-7 h-7 text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <h3 className={`text-xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-slate-900'}`}>Let's Shop</h3>
+                                    <p className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Explore 24+ Premium Booster Boxes</p>
+                                </div>
+                            </div>
+                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${isDark ? 'border-white/10 group-hover:bg-blue-600 group-hover:border-blue-600' : 'border-gray-200 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white'}`}>
+                                <ArrowRight className="w-6 h-6" />
+                            </div>
+                        </div>
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"></div>
+                    </button>
+                </div>
+
                 {/* 1. AUCTION HERO */}
                 <section className="pt-6 mb-8 lg:mb-12">
                     <div
@@ -134,7 +160,7 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                                         }}
                                         className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 transition-colors ${favorites.includes(product.id) ? 'bg-red-500 border-red-500' : 'bg-black/40 hover:bg-white/20'}`}
                                     >
-                                        <span className="material-symbols-outlined text-sm text-white leading-none font-black">{favorites.includes(product.id) ? 'favorite' : 'favorite_border'}</span>
+                                        <Heart className={`w-4 h-4 text-white ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
                                     </button>
                                 </div>
                                 <div className="absolute bottom-4 left-4 right-4">
@@ -236,7 +262,7 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                                         }}
                                         className={`absolute top-6 right-6 w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border transition-all ${favorites.includes(product.id) ? 'bg-red-500 border-red-500 scale-110 text-white' : isDark ? 'bg-black/60 border-white/10 text-white' : 'bg-white/80 border-gray-200 text-slate-400'}`}
                                     >
-                                        <span className="material-symbols-outlined text-xl font-black">{favorites.includes(product.id) ? 'favorite' : 'favorite_border'}</span>
+                                        <Heart className={`w-6 h-6 ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
                                     </button>
                                 </div>
 

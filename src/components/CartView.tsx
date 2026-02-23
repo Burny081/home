@@ -7,9 +7,10 @@ interface CartViewProps {
     onRemove: (productId: number) => void;
     onChangeQty: (productId: number, delta: number) => void;
     onShop: () => void;
+    onCheckout: () => void;
 }
 
-export default function CartView({ cartItems, onRemove, onChangeQty, onShop }: CartViewProps) {
+export default function CartView({ cartItems, onRemove, onChangeQty, onShop, onCheckout }: CartViewProps) {
     const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -175,6 +176,7 @@ export default function CartView({ cartItems, onRemove, onChangeQty, onShop }: C
 
                         <button
                             disabled={!canCheckout}
+                            onClick={onCheckout}
                             className={`w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl ${canCheckout
                                 ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20 active:scale-95'
                                 : 'bg-slate-800 text-slate-500 cursor-not-allowed shadow-none'
