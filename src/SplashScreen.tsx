@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import splashBg from './assets/splash-bg.png';
 import { PRODUCTS } from './data/products';
+import { Crown } from 'lucide-react';
 
 const SplashScreen: React.FC = () => {
     // Find the galaxy variant URL from the POKEMART_ASSETS (indirectly via products if needed, or just hardcode/import)
@@ -107,41 +107,29 @@ const SplashScreen: React.FC = () => {
                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                     className="relative mb-6"
                 >
-                    <div className="w-24 h-24 rounded-[2rem] flex items-center justify-center relative shadow-2xl"
-                        style={{
-                            background: 'linear-gradient(135deg, #a855f7, #3b82f6)',
-                            boxShadow: '0 0 60px rgba(168,85,247,0.6), 0 0 120px rgba(59,130,246,0.3)'
-                        }}>
-                        <span className="text-5xl" role="img" aria-label="booster">🃏</span>
+                    <div className="w-28 h-28 md:w-36 md:h-36 flex items-center justify-center relative shadow-2xl group animate-float">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-[2.5rem] rotate-12 shadow-lg shadow-amber-500/40" />
+                        <div className="absolute inset-0 bg-slate-900 rounded-[2.5rem] -rotate-6 border border-white/10" />
+                        <Crown className="w-12 h-12 md:w-16 md:h-16 text-amber-400 relative z-10 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
                     </div>
-                    <div className="absolute inset-0 rounded-[2rem] blur-xl opacity-60"
-                        style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)' }}
-                    />
                 </motion.div>
 
                 {/* Brand Name */}
                 <h1
-                    className="text-4xl md:text-6xl font-black uppercase italic tracking-tight leading-none"
-                    style={{
-                        background: 'linear-gradient(90deg, #f59e0b, #a855f7, #3b82f6)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        textShadow: 'none',
-                        filter: 'drop-shadow(0 0 20px rgba(168,85,247,0.5))'
-                    }}
+                    className="text-5xl md:text-7xl font-black uppercase tracking-tight leading-none holographic-text"
                 >
                     CHRIS TCG
                 </h1>
-                <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-widest text-white mt-1">
-                    BOOSTER BOX
+                <h2 className="text-xl md:text-3xl font-black uppercase italic tracking-[0.3em] text-amber-500 mt-2">
+                    KING OF TCG
                 </h2>
 
-                <div className="flex items-center gap-3 mt-4">
-                    <div className="h-px w-10" style={{ background: 'linear-gradient(to right, transparent, #a855f7)' }} />
-                    <p className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: '#c084fc' }}>
-                        Authentic  •  Trusted  •  Premium
+                <div className="flex items-center gap-3 mt-6">
+                    <div className="h-px w-12" style={{ background: 'linear-gradient(to right, transparent, rgba(251,191,36,0.5))' }} />
+                    <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-slate-400">
+                        Luxury  •  Authentic  •  Elite
                     </p>
-                    <div className="h-px w-10" style={{ background: 'linear-gradient(to left, transparent, #a855f7)' }} />
+                    <div className="h-px w-12" style={{ background: 'linear-gradient(to left, transparent, rgba(251,191,36,0.5))' }} />
                 </div>
             </motion.div>
 

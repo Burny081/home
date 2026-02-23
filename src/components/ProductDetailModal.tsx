@@ -39,10 +39,10 @@ export default function ProductDetailModal({ product, onClose, onAddToCart, onTo
                     exit={{ y: '100%', opacity: 0 }}
                     transition={{ type: 'spring', damping: 28, stiffness: 260 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="relative w-full md:max-w-2xl max-h-[92vh] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col"
+                    className="relative w-full md:max-w-2xl max-h-[92vh] bg-white dark:bg-slate-900 rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col"
                 >
                     {/* Header image */}
-                    <div className="relative w-full bg-gradient-to-br from-slate-50 to-gray-100 flex items-center justify-center"
+                    <div className="relative w-full bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800 dark:to-slate-950 flex items-center justify-center"
                         style={{ height: 260 }}>
                         <img
                             src={product.image}
@@ -52,9 +52,9 @@ export default function ProductDetailModal({ product, onClose, onAddToCart, onTo
                         />
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 p-2.5 rounded-2xl bg-white shadow-lg hover:bg-gray-50 transition-all active:scale-95"
+                            className="absolute top-4 right-4 p-2.5 rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-all active:scale-95"
                         >
-                            <X className="w-5 h-5 text-slate-700" />
+                            <X className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                         </button>
                         {product.badge && (
                             <span className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider shadow ${BADGE_COLORS[product.badge] ?? 'bg-blue-600 text-white'}`}>
@@ -67,14 +67,14 @@ export default function ProductDetailModal({ product, onClose, onAddToCart, onTo
                     <div className="flex-1 overflow-y-auto p-6 md:p-8">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div className="flex-1">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 dark:bg-blue-600/20 dark:text-blue-400 px-2 py-0.5 rounded mb-2 inline-block">
                                     {product.category}
                                 </span>
-                                <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">{product.name}</h2>
+                                <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-tight">{product.name}</h2>
                             </div>
                             <button
                                 onClick={() => onToggleFavorite(product.id)}
-                                className={`p-3 rounded-2xl border-2 transition-all active:scale-95 flex-none ${isFavorite ? 'bg-red-50 border-red-200 text-red-500' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-red-400'}`}
+                                className={`p-3 rounded-2xl border-2 transition-all active:scale-95 flex-none ${isFavorite ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-500' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-white/5 text-gray-400 hover:text-red-400'}`}
                             >
                                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                             </button>
@@ -88,12 +88,12 @@ export default function ProductDetailModal({ product, onClose, onAddToCart, onTo
                             <span className="text-xs font-bold text-slate-400 ml-2">5.0 (128 reviews)</span>
                         </div>
 
-                        <p className="text-sm md:text-base text-slate-600 leading-relaxed mb-6">{product.description}</p>
+                        <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6">{product.description}</p>
 
                         {/* Stock */}
-                        <div className="flex items-center gap-2 mb-6 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <div className="flex items-center gap-2 mb-6 p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                             <Package className="w-4 h-4 text-slate-400" />
-                            <span className="text-sm font-bold text-slate-500">Availability:</span>
+                            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Availability:</span>
                             <span className={`text-sm font-black ${stockColor}`}>
                                 {product.stock <= 0 ? 'Out of stock' : product.stock <= 5 ? `Only ${product.stock} left!` : `${product.stock} in stock`}
                             </span>
@@ -101,11 +101,11 @@ export default function ProductDetailModal({ product, onClose, onAddToCart, onTo
                     </div>
 
                     {/* Sticky footer */}
-                    <div className="p-6 md:p-8 pt-4 border-t border-gray-100 bg-white">
+                    <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase">Price</p>
-                                <p className="text-3xl font-black text-slate-900">${product.price.toFixed(2)}</p>
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">${product.price.toFixed(2)}</p>
                             </div>
                             <button
                                 onClick={() => { onAddToCart(product, 1); onClose(); }}
