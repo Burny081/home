@@ -34,6 +34,18 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [chatMessages, setChatMessages] = useState<any[]>([]);
     const [replyText, setReplyText] = useState('');
+    const [editingNickname, setEditingNickname] = useState<{ id: string, name: string } | null>(null);
+
+    const handleUpdateNickname = async (sessionId: string, newName: string) => {
+        const { error } = await supabase.from('visitors').update({ nickname: newName }).eq('session_id', sessionId);
+        if (error) {
+            showToast('Error updating nickname', 'info');
+        } else {
+            showToast('Nickname updated');
+            setVisitors(prev => prev.map(v => v.session_id === sessionId ? { ...v, nickname: newName } : v));
+            setEditingNickname(null);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -288,7 +300,30 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 <tbody className="text-sm">
                                     {visitors.map((v, i) => (
                                         <tr key={i} className={`border-t ${isDark ? 'border-white/5' : 'border-gray-50'}`}>
-                                            <td className="py-4 pl-4 font-mono text-[10px] text-blue-500 uppercase">{v.session_id.slice(0, 8)}...</td>
+                                            <td className="py-4 pl-4 font-mono text-[10px] text-blue-500 uppercase">
+                                                <div className="flex items-center gap-2">
+                                                    {editingNickname?.id === v.session_id ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <input
+                                                                autoFocus
+                                                                className={`bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${isDark ? 'text-white' : 'text-slate-900'}`}
+                                                                value={editingNickname.name}
+                                                                onChange={(e) => setEditingNickname({ ...editingNickname, name: e.target.value })}
+                                                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateNickname(v.session_id, editingNickname.name)}
+                                                            />
+                                                            <button onClick={() => handleUpdateNickname(v.session_id, editingNickname.name)} className="p-1 hover:text-emerald-500"><Check className="w-3 h-3" /></button>
+                                                            <button onClick={() => setEditingNickname(null)} className="p-1 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <span className="font-black text-blue-400">{v.nickname || v.session_id.slice(0, 8)}</span>
+                                                            <button onClick={() => setEditingNickname({ id: v.session_id, name: v.nickname || '' })} className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-blue-500 transition-opacity">
+                                                                <Edit2 className="w-3 h-3" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="py-4">
                                                 <div className="flex flex-col">
                                                     <span className={`text-[10px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{v.location_city || 'Unknown'}</span>
@@ -318,16 +353,23 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 <h3 className="font-black uppercase italic tracking-tighter">Active Sessions</h3>
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
-                                {chats.map((cid, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setSelectedChat(cid)}
-                                        className={`w-full p-4 rounded-2xl border text-left transition-all ${selectedChat === cid ? 'bg-blue-600 border-blue-600 text-white' : isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'}`}
-                                    >
-                                        <p className="font-mono text-[10px] uppercase truncate">{cid.slice(0, 20)}...</p>
-                                        <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mt-1">Chat Participant</p>
-                                    </button>
-                                ))}
+                                {chats.map((cid, i) => {
+                                    const visitor = visitors.find(v => v.session_id === cid);
+                                    const name = visitor?.nickname || cid.slice(0, 8);
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setSelectedChat(cid)}
+                                            className={`w-full p-4 rounded-2xl border text-left transition-all ${selectedChat === cid ? 'bg-blue-600 border-blue-600 text-white' : isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'}`}
+                                        >
+                                            <div className="flex items-center justify-between gap-2">
+                                                <p className="font-black text-[10px] uppercase truncate">{name}</p>
+                                                {visitor?.nickname && <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-tighter">Identified</span>}
+                                            </div>
+                                            <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mt-1">Chat Participant</p>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -336,7 +378,9 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                             {selectedChat ? (
                                 <>
                                     <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
-                                        <h3 className="font-black uppercase italic tracking-tighter">Live Session: {selectedChat.slice(0, 8)}</h3>
+                                        <h3 className="font-black uppercase italic tracking-tighter">
+                                            Live Session: {visitors.find(v => v.session_id === selectedChat)?.nickname || selectedChat.slice(0, 8)}
+                                        </h3>
                                         <Check className="w-4 h-4 text-emerald-500" />
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
