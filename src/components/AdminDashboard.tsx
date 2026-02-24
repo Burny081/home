@@ -36,6 +36,7 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
     const [replyText, setReplyText] = useState('');
     const [editingNickname, setEditingNickname] = useState<{ id: string, name: string } | null>(null);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [sessionUnread, setSessionUnread] = useState<Record<string, number>>({});
 
     const handleUpdateNickname = async (sessionId: string, newName: string) => {
         const { error } = await supabase.from('visitors').update({ nickname: newName }).eq('session_id', sessionId);
@@ -61,9 +62,24 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 setChats(uniqueSessions);
             }
 
-            // Fetch Unread Count
-            const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('sender', 'user').eq('is_read', false);
-            setUnreadCount(count || 0);
+            // Fetch Unread Count - grouped by session
+            const { data: unreadData } = await supabase
+                .from('messages')
+                .select('session_id, id')
+                .eq('sender', 'user')
+                .eq('is_read', false);
+
+            if (unreadData) {
+                const bySession: Record<string, number> = {};
+                unreadData.forEach(m => {
+                    bySession[m.session_id] = (bySession[m.session_id] || 0) + 1;
+                });
+                setSessionUnread(bySession);
+                setUnreadCount(unreadData.length);
+            } else {
+                setSessionUnread({});
+                setUnreadCount(0);
+            }
         };
 
         fetchData();
@@ -96,18 +112,27 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 const { data } = await supabase.from('messages').select('*').eq('session_id', selectedChat).order('created_at', { ascending: true });
                 if (data) {
                     setChatMessages(data);
-                    // Mark as read when admin views
-                    await supabase.from('messages').update({ is_read: true, delivered: true }).eq('session_id', selectedChat).eq('sender', 'user');
+                    // Count how many unread we are about to mark as read
+                    const toMarkCount = data.filter(m => m.sender === 'user' && !m.is_read).length;
+                    // Mark as read + delivered when admin views
+                    if (toMarkCount > 0) {
+                        await supabase.from('messages').update({ is_read: true, delivered: true }).eq('session_id', selectedChat).eq('sender', 'user').eq('is_read', false);
+                        // Immediately decrement in local state without waiting for subscription
+                        setUnreadCount(prev => Math.max(0, prev - toMarkCount));
+                        setSessionUnread(prev => { const next = { ...prev }; delete next[selectedChat]; return next; });
+                    }
                 }
             };
             fetchChatMessages();
 
             const sub = supabase.channel(`chat_admin_${selectedChat}`).on('postgres_changes', {
                 event: 'INSERT', schema: 'public', table: 'messages', filter: `session_id=eq.${selectedChat}`
-            }, (payload) => {
+            }, async (payload) => {
                 setChatMessages(prev => [...prev, payload.new]);
                 if (payload.new.sender === 'user') {
-                    supabase.from('messages').update({ delivered: true, is_read: true }).eq('id', payload.new.id);
+                    // Auto-mark as read since admin has the chat open
+                    await supabase.from('messages').update({ delivered: true, is_read: true }).eq('id', payload.new.id);
+                    // Don't increment local unread since we're reading immediately
                 }
             }).subscribe();
 
@@ -468,25 +493,37 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-2 duration-500 h-[600px]">
                         {/* Chat List */}
                         <div className={`md:col-span-1 rounded-[2.5rem] border overflow-hidden flex flex-col ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
-                            <div className="p-6 border-b border-white/5 bg-white/5">
+                            <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
                                 <h3 className="font-black uppercase italic tracking-tighter">Active Sessions</h3>
+                                {unreadCount > 0 && (
+                                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                                        {unreadCount} unread
+                                    </span>
+                                )}
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
-                                {chats.map((cid, i) => {
+                                {/* Sort: sessions with unread messages first */}
+                                {[...chats].sort((a, b) => (sessionUnread[b] || 0) - (sessionUnread[a] || 0)).map((cid, i) => {
                                     const visitor = visitors.find(v => v.session_id === cid);
                                     const name = visitor?.nickname || cid.slice(0, 8);
+                                    const unread = sessionUnread[cid] || 0;
+                                    const isSelected = selectedChat === cid;
                                     return (
                                         <div
                                             key={i}
                                             onClick={() => setSelectedChat(cid)}
-                                            className={`group w-full p-4 rounded-2xl border text-left transition-all cursor-pointer ${selectedChat === cid ? 'bg-blue-600 border-blue-600 text-white' : isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'}`}
+                                            className={`group w-full p-4 rounded-2xl border text-left transition-all cursor-pointer relative ${isSelected ? 'bg-blue-600 border-blue-600 text-white' :
+                                                    unread > 0 ? (isDark ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-amber-50 border-amber-200 text-slate-900') :
+                                                        isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'
+                                                }`}
                                         >
                                             <div className="flex items-center justify-between gap-2">
                                                 {editingNickname?.id === cid ? (
                                                     <div className="flex items-center gap-1 flex-1">
                                                         <input
                                                             autoFocus
-                                                            className={`w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${selectedChat === cid ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}
+                                                            className={`w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${isSelected ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}
                                                             value={editingNickname.name}
                                                             onChange={(e) => setEditingNickname({ ...editingNickname, name: e.target.value })}
                                                             onKeyDown={(e) => e.key === 'Enter' && handleUpdateNickname(cid, editingNickname.name)}
@@ -497,18 +534,38 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                                     </div>
                                                 ) : (
                                                     <>
-                                                        <p className="font-black text-[10px] uppercase truncate flex-1">{name}</p>
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); setEditingNickname({ id: cid, name: visitor?.nickname || '' }); }}
-                                                            className={`opacity-0 group-hover:opacity-100 p-1 transition-opacity ${selectedChat === cid ? 'text-white/60 hover:text-white' : 'text-slate-500 hover:text-blue-500'}`}
-                                                        >
-                                                            <Edit2 className="w-3 h-3" />
-                                                        </button>
-                                                        {visitor?.nickname && <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter ${selectedChat === cid ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'}`}>Identified</span>}
+                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                            {/* Unread pulse dot */}
+                                                            {unread > 0 && !isSelected && (
+                                                                <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 animate-pulse" />
+                                                            )}
+                                                            <p className="font-black text-[10px] uppercase truncate flex-1">{name}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                                                            {/* Unread count badge */}
+                                                            {unread > 0 && (
+                                                                <span className={`min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-black flex items-center justify-center ${isSelected ? 'bg-white/30 text-white' : 'bg-red-500 text-white'
+                                                                    }`}>
+                                                                    {unread}
+                                                                </span>
+                                                            )}
+                                                            {/* Identified badge */}
+                                                            {visitor?.nickname && (
+                                                                <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter ${isSelected ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'
+                                                                    }`}>ID'd</span>
+                                                            )}
+                                                            {/* Always-visible rename button */}
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); setEditingNickname({ id: cid, name: visitor?.nickname || '' }); }}
+                                                                className={`p-1.5 rounded-lg transition-colors ${isSelected ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-blue-500 hover:bg-blue-500/10'}`}
+                                                            >
+                                                                <Edit2 className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
                                                     </>
                                                 )}
                                             </div>
-                                            <p className={`text-[9px] font-black uppercase tracking-widest mt-1 ${selectedChat === cid ? 'opacity-80 text-white' : 'opacity-60'}`}>Chat Participant</p>
+                                            <p className={`text-[9px] font-black uppercase tracking-widest mt-1 ${isSelected ? 'opacity-80 text-white' : 'opacity-60'}`}>Chat Participant</p>
                                         </div>
                                     );
                                 })}
