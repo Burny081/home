@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
     Package, LayoutDashboard, Settings, ShoppingCart,
     Plus, Search, SlidersHorizontal, Edit2, Trash2, Bell, TrendingUp, Users, DollarSign,
-    X, Image as ImageIcon, Tag, Hash, Info, Check, ChevronDown, Lock, Globe, MessageSquare, Send, ShieldOff
+    X, Image as ImageIcon, Tag, Hash, Info, Check, ChevronDown, Lock, Globe, MessageSquare, Send, ShieldOff,
+    Radio
 } from 'lucide-react';
 import { Product } from '../types';
 import { POKEMART_ASSETS } from '../data/products';
@@ -59,6 +60,8 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
             fetchData();
             if (payload.new.sender === 'user') {
                 showToast(`New Message from ${payload.new.session_id.slice(0, 8)}`, 'info');
+                // Play notification sound
+                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(e => console.log('Audio play failed:', e));
             }
         }).subscribe();
 
@@ -140,12 +143,26 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 const msg = prompt('Enter global notification message:');
                                 if (msg) {
                                     await supabase.from('notifications').insert([{ message: msg, type: 'info' }]);
+                                    showToast('Broadcast Sent', 'success');
                                 }
                             }}
-                            className={`relative p-2.5 rounded-2xl border shadow-sm transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
+                            className={`p-2.5 rounded-2xl border shadow-sm transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
+                            title="Send Global Broadcast"
                         >
-                            <Bell className="w-5 h-5 text-blue-500" />
-                            {chats.length > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />}
+                            <Radio className="w-5 h-5 text-blue-500" />
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab('chats')}
+                            className={`relative p-2.5 rounded-2xl border shadow-sm transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
+                            title="Support Notifications"
+                        >
+                            <Bell className={`w-5 h-5 ${chats.length > 0 ? 'text-amber-500' : 'text-slate-400'}`} />
+                            {chats.length > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white animate-bounce">
+                                    {chats.length}
+                                </span>
+                            )}
                         </button>
                         <button
                             onClick={onLock}
