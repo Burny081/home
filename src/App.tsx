@@ -58,25 +58,32 @@ export default function App() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data, error } = await supabase
+      const { data: dbData, error } = await supabase
         .from('products')
         .select('*')
         .order('id', { ascending: true });
 
       if (error) {
         console.error('Error fetching products:', error);
-        // Fallback to static/local data if DB load fails
-        const saved = localStorage.getItem('tcg_vault_products');
-        setLiveProducts(saved ? JSON.parse(saved) : PRODUCTS);
         return;
       }
 
-      if (data && data.length > 0) {
-        setLiveProducts(data);
-      } else {
-        // If DB is empty, use default data
-        setLiveProducts(PRODUCTS);
+      // Merge Strategy: Start with mock PRODUCTS
+      // Overwrite with DB items where IDs match, and Append new DB items
+      const merged = [...PRODUCTS];
+
+      if (dbData) {
+        dbData.forEach((dbItem: Product) => {
+          const index = merged.findIndex(m => m.id === dbItem.id);
+          if (index !== -1) {
+            merged[index] = { ...merged[index], ...dbItem };
+          } else {
+            merged.push(dbItem);
+          }
+        });
       }
+
+      setLiveProducts(merged);
     };
 
     fetchProducts();
@@ -107,19 +114,6 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data, error } = await supabase.from('products').select('*');
-      if (error) {
-        console.error('Fetch error:', error);
-        return;
-      }
-      if (data && data.length > 0) {
-        setLiveProducts(data);
-      }
-    };
-    fetchProducts();
-  }, []);
 
   useEffect(() => {
     const initSession = async () => {
