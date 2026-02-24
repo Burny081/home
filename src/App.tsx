@@ -7,7 +7,8 @@ import {
   Menu, ShoppingBag, Search, ArrowRight, Package, Zap,
   Layers, Award, Plus, Home, User, X, ChevronRight,
   Heart, BarChart3, Wallet, Settings, HelpCircle, CreditCard,
-  Sun, Moon, LayoutGrid, Crown, Facebook, Gavel
+  Sun, Moon, LayoutGrid, Crown, Facebook, Gavel,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import SplashScreen from './SplashScreen';
@@ -480,15 +481,14 @@ export default function App() {
                 <button onClick={() => setCurrentView('cart')} className={`relative p-2.5 rounded-xl transition-all active:scale-95 group ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
                   <ShoppingBag className={`w-6 h-6 ${currentView === 'cart' ? 'text-blue-600' : theme === 'dark' ? 'text-slate-400' : 'text-slate-700'} group-hover:text-blue-600`} />
                   {cartCount > 0 && (
-                    <motion.span
-                      key={cartCount}
-                      initial={{ scale: 1.5 }}
-                      animate={{ scale: 1 }}
-                      className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white border-2 border-white"
-                    >
+                    <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white border-2 border-white">
                       {cartCount}
-                    </motion.span>
+                    </div>
                   )}
+                </button>
+                <button onClick={() => setIsChatOpen(true)} className={`p-2.5 rounded-xl transition-all active:scale-95 group relative ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
+                  <MessageSquare className={`w-6 h-6 ${isChatOpen ? 'text-blue-500' : theme === 'dark' ? 'text-slate-400' : 'text-slate-700'} group-hover:text-blue-500`} />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full border border-white animate-pulse" />
                 </button>
               </div>
             </div>
@@ -585,10 +585,11 @@ export default function App() {
           <div className="flex justify-around items-center h-16 px-2">
             {[
               { id: 'home', icon: Home, label: 'Home' },
+              { id: 'chat', icon: MessageSquare, label: 'Support' },
               { id: 'favorites', icon: Heart, label: 'Favs' },
               { id: 'settings', icon: Settings, label: 'Settings' },
             ].map(item => (
-              <button key={item.id} onClick={() => setCurrentView(item.id)}
+              <button key={item.id} onClick={() => item.id === 'chat' ? setIsChatOpen(true) : setCurrentView(item.id)}
                 className={`flex flex-col items-center justify-center gap-1 w-full transition-all active:scale-90 ${currentView === item.id ? (theme === 'dark' ? 'text-amber-400' : 'text-blue-600') : theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
               >
                 <div className="relative">

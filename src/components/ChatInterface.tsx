@@ -96,6 +96,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
         const text = input.trim();
         setInput('');
 
+        // Optimistic update
+        const tempId = Date.now();
+        const optimisticMsg: Message = {
+            id: tempId,
+            text,
+            sender: 'user',
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, optimisticMsg]);
+
         const { data, error } = await supabase
             .from('messages')
             .insert([{
@@ -107,11 +117,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
 
         if (error) {
             console.error('Send error:', error);
+            // Remove optimistic message on error? Or show error state
+            setMessages(prev => prev.filter(m => m.id !== tempId));
             return;
         }
-
-        // Optimistic update handled by Realtime subscription mostly, 
-        // but we can add locally if we want immediate feedback
     };
 
     return (
