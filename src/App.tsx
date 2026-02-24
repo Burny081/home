@@ -138,18 +138,6 @@ export default function App() {
     initSession();
   }, []);
 
-  const handleAdminAuthSuccess = () => {
-    setIsAdminAuthenticated(true);
-    setShowAdminAuth(false);
-    showToast('Admin Access Granted');
-  };
-
-  const handleLockAdmin = async () => {
-    await supabase.auth.signOut();
-    setIsAdminAuthenticated(false);
-    setCurrentView('home');
-    showToast('Vault Locked', 'info');
-  };
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
