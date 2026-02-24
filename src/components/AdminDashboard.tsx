@@ -292,77 +292,177 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                     </div>
                 )}
 
-                {activeTab === 'visitors' && (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className={`p-8 rounded-[2.5rem] border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                        <th className="pb-6 pl-4">Session ID</th>
-                                        <th className="pb-6">Location</th>
-                                        <th className="pb-6">Last Active</th>
-                                        <th className="pb-6">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm">
-                                    {visitors.map((v, i) => (
-                                        <tr key={i} className={`border-t group ${isDark ? 'border-white/5' : 'border-gray-50'}`}>
-                                            <td className="py-4 pl-4 font-mono text-[10px] text-blue-500 uppercase">
-                                                <div className="flex items-center gap-2">
+                {activeTab === 'visitors' && (() => {
+                    // --- Analytics calculations ---
+                    const countryCounts: Record<string, number> = {};
+                    const cityCounts: Record<string, number> = {};
+                    const dayCounts: Record<string, number> = {};
+                    visitors.forEach(v => {
+                        const c = v.location_country || 'Unknown';
+                        const ci = v.location_city || 'Unknown';
+                        const d = new Date(v.last_active).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                        countryCounts[c] = (countryCounts[c] || 0) + 1;
+                        cityCounts[ci] = (cityCounts[ci] || 0) + 1;
+                        dayCounts[d] = (dayCounts[d] || 0) + 1;
+                    });
+                    const topCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+                    const topCities = Object.entries(cityCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+                    const topDays = Object.entries(dayCounts).sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
+                    const maxC = Math.max(...topCountries.map(x => x[1]), 1);
+                    const maxCi = Math.max(...topCities.map(x => x[1]), 1);
+                    const maxD = Math.max(...topDays.map(x => x[1]), 1);
+
+                    return (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            {/* Analytics Cards Row */}
+                            <div className="grid grid-cols-3 gap-4">
+                                {[
+                                    { label: 'Total Visitors', value: visitors.length, icon: <Users className="w-4 h-4" />, color: 'text-blue-500' },
+                                    { label: 'Countries', value: Object.keys(countryCounts).filter(k => k !== 'Unknown').length, icon: <Globe className="w-4 h-4" />, color: 'text-purple-500' },
+                                    { label: 'Cities', value: Object.keys(cityCounts).filter(k => k !== 'Unknown').length, icon: <TrendingUp className="w-4 h-4" />, color: 'text-emerald-500' },
+                                ].map((stat, i) => (
+                                    <div key={i} className={`p-5 rounded-2xl border flex flex-col gap-1 ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
+                                        <span className={`${stat.color}`}>{stat.icon}</span>
+                                        <p className="text-xl font-black">{stat.value}</p>
+                                        <p className={`text-[9px] font-black uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>{stat.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Charts Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Top Countries */}
+                                <div className={`p-5 rounded-2xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-4 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>🌍 Top Countries</p>
+                                    <div className="space-y-2">
+                                        {topCountries.map(([name, count], i) => (
+                                            <div key={i}>
+                                                <div className="flex justify-between mb-1">
+                                                    <span className={`text-[10px] font-black uppercase truncate max-w-[70%] ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{name}</span>
+                                                    <span className="text-[10px] font-black text-blue-500">{count}</span>
+                                                </div>
+                                                <div className={`w-full h-2 rounded-full ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                                    <div className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700" style={{ width: `${(count / maxC) * 100}%` }} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {topCountries.length === 0 && <p className="text-[10px] text-slate-500">No data yet</p>}
+                                    </div>
+                                </div>
+
+                                {/* Top Cities */}
+                                <div className={`p-5 rounded-2xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-4 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>🏙️ Top Cities</p>
+                                    <div className="space-y-2">
+                                        {topCities.map(([name, count], i) => (
+                                            <div key={i}>
+                                                <div className="flex justify-between mb-1">
+                                                    <span className={`text-[10px] font-black uppercase truncate max-w-[70%] ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{name}</span>
+                                                    <span className="text-[10px] font-black text-emerald-500">{count}</span>
+                                                </div>
+                                                <div className={`w-full h-2 rounded-full ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                                    <div className="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-700" style={{ width: `${(count / maxCi) * 100}%` }} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {topCities.length === 0 && <p className="text-[10px] text-slate-500">No data yet</p>}
+                                    </div>
+                                </div>
+
+                                {/* Daily Traffic */}
+                                <div className={`p-5 rounded-2xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-4 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>📈 Daily Traffic</p>
+                                    <div className="flex items-end gap-1 h-[80px]">
+                                        {topDays.map(([day, count], i) => (
+                                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                                <div
+                                                    className="w-full rounded-t-md bg-gradient-to-t from-blue-500 to-purple-400 transition-all duration-700"
+                                                    style={{ height: `${Math.max(6, (count / maxD) * 70)}px` }}
+                                                    title={`${day}: ${count} visitors`}
+                                                />
+                                                <span className="text-[7px] font-black text-slate-500 uppercase">{day.split(' ')[0]}</span>
+                                            </div>
+                                        ))}
+                                        {topDays.length === 0 && <p className="text-[10px] text-slate-500">No data yet</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Visitor Table */}
+                            <div className={`rounded-2xl border overflow-hidden ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}>
+                                <div className={`px-5 py-4 border-b ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>👥 All Visitors</p>
+                                </div>
+                                <div className="divide-y divide-white/5">
+                                    {visitors.map((v, i) => {
+                                        const isOnline = (Date.now() - new Date(v.last_active).getTime()) < 5 * 60 * 1000;
+                                        return (
+                                            <div key={i} className={`px-5 py-4 flex items-center gap-3 ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'} transition-colors`}>
+                                                {/* Avatar */}
+                                                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${isOnline ? 'bg-emerald-500/20 text-emerald-500' : isDark ? 'bg-white/10 text-slate-400' : 'bg-gray-100 text-gray-500'
+                                                    }`}>
+                                                    {(v.nickname || v.session_id).slice(0, 2).toUpperCase()}
+                                                </div>
+                                                {/* Name & ID */}
+                                                <div className="flex-1 min-w-0">
                                                     {editingNickname?.id === v.session_id ? (
                                                         <div className="flex items-center gap-1">
                                                             <input
                                                                 autoFocus
-                                                                className={`bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${isDark ? 'text-white' : 'text-slate-900'}`}
+                                                                className={`w-full bg-transparent border-b-2 border-blue-500 px-1 py-0.5 text-[11px] outline-none ${isDark ? 'text-white' : 'text-slate-900'}`}
                                                                 value={editingNickname.name}
+                                                                placeholder="Enter nickname..."
                                                                 onChange={(e) => setEditingNickname({ ...editingNickname, name: e.target.value })}
                                                                 onKeyDown={(e) => e.key === 'Enter' && handleUpdateNickname(v.session_id, editingNickname.name)}
                                                             />
-                                                            <button onClick={() => handleUpdateNickname(v.session_id, editingNickname.name)} className="p-1 hover:text-emerald-500"><Check className="w-3 h-3" /></button>
-                                                            <button onClick={() => setEditingNickname(null)} className="p-1 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                            <button onClick={() => handleUpdateNickname(v.session_id, editingNickname.name)} className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-500"><Check className="w-3 h-3" /></button>
+                                                            <button onClick={() => setEditingNickname(null)} className="p-1.5 rounded-lg bg-red-500/20 text-red-500"><X className="w-3 h-3" /></button>
                                                         </div>
                                                     ) : (
-                                                        <>
-                                                            <span className="font-black text-blue-400">{v.nickname || v.session_id.slice(0, 8)}</span>
-                                                            <button onClick={() => setEditingNickname({ id: v.session_id, name: v.nickname || '' })} className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-blue-500 transition-opacity">
-                                                                <Edit2 className="w-3 h-3" />
-                                                            </button>
-                                                        </>
+                                                        <p className={`text-[11px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                                                            {v.nickname || v.session_id.slice(0, 12)}
+                                                            {v.nickname && <span className="ml-1 text-[8px] text-blue-400 font-black">✦ ID'd</span>}
+                                                        </p>
                                                     )}
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        {v.latitude && v.longitude ? (
+                                                            <a href={`https://www.google.com/maps?q=${v.latitude},${v.longitude}`} target="_blank" rel="noopener noreferrer"
+                                                                className="flex items-center gap-0.5 text-[9px] font-black text-blue-400 hover:text-blue-300 uppercase"
+                                                            >
+                                                                <Globe className="w-2.5 h-2.5" />{v.location_city || 'Map'}, {v.location_country}
+                                                            </a>
+                                                        ) : (
+                                                            <span className="text-[9px] font-black text-slate-500 uppercase">{v.location_city ? `${v.location_city}, ${v.location_country}` : 'Location unknown'}</span>
+                                                        )}
+                                                        <span className={`text-[8px] font-black uppercase tracking-wide ${isOnline ? 'text-emerald-500' : 'text-slate-600'}`}>
+                                                            • {isOnline ? 'Online' : new Date(v.last_active).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td className="py-4">
-                                                <div className="flex flex-col">
-                                                    {v.latitude && v.longitude ? (
-                                                        <a
-                                                            href={`https://www.google.com/maps?q=${v.latitude},${v.longitude}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className={`text-[10px] font-black uppercase tracking-tight flex items-center gap-1 hover:text-blue-500 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-900'}`}
-                                                        >
-                                                            <Globe className="w-3 h-3 text-blue-500" />
-                                                            {v.location_city || 'View on Map'}
-                                                        </a>
-                                                    ) : (
-                                                        <span className={`text-[10px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{v.location_city || 'Unknown'}</span>
-                                                    )}
-                                                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{v.location_country || 'Earth'}</span>
-                                                </div>
-                                            </td>
-                                            <td className={`py-4 font-black uppercase tracking-tight ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{new Date(v.last_active).toLocaleString()}</td>
-                                            <td className="py-4">
-                                                <span className="flex items-center gap-1.5 text-emerald-500 font-black text-[10px] uppercase">
-                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                    Online
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                {/* ALWAYS VISIBLE Rename Button */}
+                                                {editingNickname?.id !== v.session_id && (
+                                                    <button
+                                                        onClick={() => setEditingNickname({ id: v.session_id, name: v.nickname || '' })}
+                                                        className={`p-2.5 rounded-xl flex-shrink-0 transition-colors ${isDark ? 'bg-white/5 hover:bg-blue-500/20 text-slate-400 hover:text-blue-400' : 'bg-gray-100 hover:bg-blue-50 text-gray-500 hover:text-blue-500'
+                                                            }`}
+                                                        title="Rename visitor"
+                                                    >
+                                                        <Edit2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                    {visitors.length === 0 && (
+                                        <div className="px-5 py-10 text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No visitors recorded yet</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
 
                 {activeTab === 'chats' && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-2 duration-500 h-[600px]">
