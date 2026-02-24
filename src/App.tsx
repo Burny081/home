@@ -387,10 +387,14 @@ export default function App() {
   };
 
   const handleLockAdmin = async () => {
-    await supabase.auth.signOut();
+    // Use 'local' scope so we only clear this browser's admin session.
+    // Global signOut would revoke the token server-side and kill ALL
+    // real-time subscriptions (visitor chat, notifications, etc.) for this client.
+    await supabase.auth.signOut({ scope: 'local' });
     setIsAdminAuthenticated(false);
+    sessionStorage.removeItem('admin_authenticated');
     setCurrentView('home');
-    showToast('Vault Secured', 'info');
+    showToast('Vault Secured 🔒', 'info');
   };
 
   const renderHome = () => (
