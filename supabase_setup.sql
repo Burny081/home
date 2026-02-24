@@ -17,6 +17,7 @@ CREATE TABLE visitors (
   last_active TIMESTAMPTZ DEFAULT NOW(),
   location_city TEXT,
   location_country TEXT,
+  ip_address TEXT, -- Store raw IP for persistence logic
   ip_mask TEXT
 );
 
@@ -27,8 +28,13 @@ CREATE TABLE messages (
   session_id UUID REFERENCES visitors(session_id),
   sender TEXT NOT NULL, -- 'user', 'admin', or 'bot'
   text TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT FALSE
+  delivered BOOLEAN DEFAULT FALSE, -- WhatsApp-style status
+  is_read BOOLEAN DEFAULT FALSE    -- WhatsApp-style status
 );
+
+-- Enable Realtime for these tables (Run this in Supabase SQL Editor if not already enabled)
+-- ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE visitors;
 
 -- 4. Notifications Table (Global Broadcasts)
 CREATE TABLE notifications (

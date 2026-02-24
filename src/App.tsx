@@ -41,14 +41,7 @@ export default function App() {
   }, []);
 
   // Supabase & Session State
-  const [sessionId] = useState(() => {
-    let id = localStorage.getItem('tcg_vault_session');
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem('tcg_vault_session', id);
-    }
-    return id;
-  });
+  const [sessionId, setSessionId] = useState<string>('');
 
   // Phase 14: Dynamic Products & Theme
   const [liveProducts, setLiveProducts] = useState<Product[]>(() => {
@@ -105,21 +98,58 @@ export default function App() {
     fetchProducts();
   }, []);
 
-  // Sync visitor to analytics
   useEffect(() => {
-    const trackVisitor = async () => {
+    const initSession = async () => {
+      let currentIp = '';
+      let locationData = { city: '', country: '' };
+
       try {
-        // Simple Geo-IP (optional polish later)
-        await supabase.from('visitors').upsert({
-          session_id: sessionId,
-          last_active: new Date().toISOString()
-        }, { onConflict: 'session_id' });
+        const geoRes = await fetch('https://ipapi.co/json/');
+        const geoData = await geoRes.json();
+        currentIp = geoData.ip;
+        locationData = { city: geoData.city, country: geoData.country_name };
       } catch (err) {
-        console.warn('Analytics sync failed');
+        console.warn('Geo-fetch failed');
       }
+
+      let id = localStorage.getItem('tcg_vault_session');
+      if (currentIp) {
+        const { data: existingVisitor } = await supabase
+          .from('visitors')
+          .select('session_id')
+          .eq('ip_address', currentIp)
+          .single();
+        if (existingVisitor) id = existingVisitor.session_id;
+      }
+
+      if (!id) id = crypto.randomUUID();
+      localStorage.setItem('tcg_vault_session', id);
+      setSessionId(id);
+
+      await supabase.from('visitors').upsert({
+        session_id: id,
+        last_active: new Date().toISOString(),
+        ip_address: currentIp,
+        location_city: locationData.city,
+        location_country: locationData.country
+      }, { onConflict: 'session_id' });
     };
-    trackVisitor();
-  }, [sessionId]);
+
+    initSession();
+  }, []);
+
+  const handleAdminAuthSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setShowAdminAuth(false);
+    showToast('Admin Access Granted');
+  };
+
+  const handleLockAdmin = async () => {
+    await supabase.auth.signOut();
+    setIsAdminAuthenticated(false);
+    setCurrentView('home');
+    showToast('Vault Locked', 'info');
+  };
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 

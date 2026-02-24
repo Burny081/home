@@ -75,7 +75,11 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
         if (selectedChat) {
             const fetchChatMessages = async () => {
                 const { data } = await supabase.from('messages').select('*').eq('session_id', selectedChat).order('created_at', { ascending: true });
-                if (data) setChatMessages(data);
+                if (data) {
+                    setChatMessages(data);
+                    // Mark as read when admin views
+                    await supabase.from('messages').update({ is_read: true, delivered: true }).eq('session_id', selectedChat).eq('sender', 'user');
+                }
             };
             fetchChatMessages();
 
@@ -83,6 +87,9 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 event: 'INSERT', schema: 'public', table: 'messages', filter: `session_id=eq.${selectedChat}`
             }, (payload) => {
                 setChatMessages(prev => [...prev, payload.new]);
+                if (payload.new.sender === 'user') {
+                    supabase.from('messages').update({ delivered: true, is_read: true }).eq('id', payload.new.id);
+                }
             }).subscribe();
 
             return () => { supabase.removeChannel(sub); };
@@ -273,6 +280,7 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                                         <th className="pb-6 pl-4">Session ID</th>
+                                        <th className="pb-6">Location</th>
                                         <th className="pb-6">Last Active</th>
                                         <th className="pb-6">Status</th>
                                     </tr>
@@ -280,7 +288,13 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 <tbody className="text-sm">
                                     {visitors.map((v, i) => (
                                         <tr key={i} className={`border-t ${isDark ? 'border-white/5' : 'border-gray-50'}`}>
-                                            <td className="py-4 pl-4 font-mono text-[10px] text-blue-500 uppercase">{v.session_id.slice(0, 18)}...</td>
+                                            <td className="py-4 pl-4 font-mono text-[10px] text-blue-500 uppercase">{v.session_id.slice(0, 8)}...</td>
+                                            <td className="py-4">
+                                                <div className="flex flex-col">
+                                                    <span className={`text-[10px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{v.location_city || 'Unknown'}</span>
+                                                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{v.location_country || 'Earth'}</span>
+                                                </div>
+                                            </td>
                                             <td className={`py-4 font-black uppercase tracking-tight ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{new Date(v.last_active).toLocaleString()}</td>
                                             <td className="py-4">
                                                 <span className="flex items-center gap-1.5 text-emerald-500 font-black text-[10px] uppercase">
@@ -328,8 +342,14 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                     <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
                                         {chatMessages.map((m, i) => (
                                             <div key={i} className={`flex ${m.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                                                <div className={`max-w-[80%] p-4 rounded-2xl text-xs font-black uppercase tracking-tight ${m.sender === 'admin' ? 'bg-blue-600 text-white rounded-tr-none' : isDark ? 'bg-white/5 text-slate-300 rounded-tl-none border border-white/10' : 'bg-gray-100 text-slate-700 rounded-tl-none'}`}>
+                                                <div className={`max-w-[80%] p-4 rounded-2xl text-xs font-black uppercase tracking-tight relative ${m.sender === 'admin' ? 'bg-blue-600 text-white rounded-tr-none' : isDark ? 'bg-white/5 text-slate-300 rounded-tl-none border border-white/10' : 'bg-gray-100 text-slate-700 rounded-tl-none'}`}>
                                                     {m.text}
+                                                    {m.sender === 'admin' && (
+                                                        <div className="absolute -bottom-4 right-0 flex items-center gap-0.5 opacity-40">
+                                                            <Check className={`w-3 h-3 ${m.delivered || m.is_read ? 'text-blue-400' : 'text-slate-400'}`} />
+                                                            {(m.delivered || m.is_read) && <Check className={`w-3 h-3 -ml-2 ${m.is_read ? 'text-blue-400' : 'text-slate-400'}`} />}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}

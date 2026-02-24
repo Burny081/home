@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, X, User, MessageSquare, ShieldCheck, Zap } from 'lucide-react';
+import { Send, X, User, MessageSquare, ShieldCheck, Zap, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface ChatInterfaceProps {
@@ -14,6 +14,8 @@ interface Message {
     text: string;
     sender: 'user' | 'admin' | 'bot';
     timestamp: Date;
+    delivered?: boolean;
+    is_read?: boolean;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId }) => {
@@ -49,7 +51,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
                     id: m.id,
                     text: m.text,
                     sender: m.sender,
-                    timestamp: new Date(m.created_at)
+                    timestamp: new Date(m.created_at),
+                    delivered: m.delivered,
+                    is_read: m.is_read
                 }));
                 setMessages(prev => [prev[0], ...mapped]);
             }
@@ -61,21 +65,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
         const channel = supabase
             .channel(`chat:${sessionId}`)
             .on('postgres_changes', {
-                event: 'INSERT',
+                event: '*', // Listen for UPDATES too (for read receipts)
                 schema: 'public',
                 table: 'messages',
                 filter: `session_id=eq.${sessionId}`
             }, (payload) => {
-                const newMsg = payload.new;
-                setMessages(prev => {
-                    if (prev.find(m => m.id === newMsg.id)) return prev;
-                    return [...prev, {
-                        id: newMsg.id,
-                        text: newMsg.text,
-                        sender: newMsg.sender,
-                        timestamp: new Date(newMsg.created_at)
-                    }];
-                });
+                if (payload.eventType === 'INSERT') {
+                    const newMsg = payload.new;
+                    setMessages(prev => {
+                        if (prev.find(m => m.id === newMsg.id)) return prev;
+                        return [...prev, {
+                            id: newMsg.id,
+                            text: newMsg.text,
+                            sender: newMsg.sender,
+                            timestamp: new Date(newMsg.created_at),
+                            delivered: newMsg.delivered,
+                            is_read: newMsg.is_read
+                        }];
+                    });
+                } else if (payload.eventType === 'UPDATE') {
+                    const updated = payload.new;
+                    setMessages(prev => prev.map(m => m.id === updated.id ? {
+                        ...m,
+                        delivered: updated.delivered,
+                        is_read: updated.is_read
+                    } : m));
+                }
             })
             .subscribe();
 
@@ -163,14 +178,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
                     {messages.map(msg => (
                         <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[80%] p-4 rounded-2xl shadow-sm text-sm font-medium ${msg.sender === 'user'
+                            <div className={`max-w-[80%] p-4 rounded-2xl shadow-sm text-sm font-medium relative ${msg.sender === 'user'
                                 ? 'bg-blue-600 text-white rounded-tr-none'
                                 : isDark ? 'bg-white/5 text-slate-200 border border-white/5 rounded-tl-none' : 'bg-gray-100 text-slate-700 rounded-tl-none'
                                 }`}>
                                 {msg.text}
-                                <p className={`text-[8px] mt-1.5 font-bold uppercase tracking-widest opacity-40 ${msg.sender === 'user' ? 'text-white' : 'text-slate-500'}`}>
-                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
+                                <div className="flex items-center justify-between mt-1.5 gap-2">
+                                    <p className={`text-[8px] font-bold uppercase tracking-widest opacity-40 ${msg.sender === 'user' ? 'text-white' : 'text-slate-500'}`}>
+                                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    {msg.sender === 'user' && (
+                                        <div className="flex items-center gap-0.5">
+                                            <Check className={`w-3 h-3 ${msg.delivered || msg.is_read ? 'text-blue-300' : 'text-slate-300 opacity-40'}`} />
+                                            {(msg.delivered || msg.is_read) && (
+                                                <Check className={`w-3 h-3 -ml-2 ${msg.is_read ? 'text-blue-300' : 'text-slate-300 opacity-40'}`} />
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
