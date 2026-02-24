@@ -35,6 +35,7 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
     const [chatMessages, setChatMessages] = useState<any[]>([]);
     const [replyText, setReplyText] = useState('');
     const [editingNickname, setEditingNickname] = useState<{ id: string, name: string } | null>(null);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const handleUpdateNickname = async (sessionId: string, newName: string) => {
         const { error } = await supabase.from('visitors').update({ nickname: newName }).eq('session_id', sessionId);
@@ -59,6 +60,10 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 const uniqueSessions = Array.from(new Set(cData.map(m => m.session_id)));
                 setChats(uniqueSessions);
             }
+
+            // Fetch Unread Count
+            const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('sender', 'user').eq('is_read', false);
+            setUnreadCount(count || 0);
         };
 
         fetchData();
@@ -75,6 +80,8 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 // Play notification sound
                 new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(e => console.log('Audio play failed:', e));
             }
+        }).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
+            fetchData();
         }).subscribe();
 
         return () => {
@@ -176,10 +183,10 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                             className={`relative p-2.5 rounded-2xl border shadow-sm transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
                             title="Support Notifications"
                         >
-                            <Bell className={`w-5 h-5 ${chats.length > 0 ? 'text-amber-500' : 'text-slate-400'}`} />
-                            {chats.length > 0 && (
+                            <Bell className={`w-5 h-5 ${unreadCount > 0 ? 'text-amber-500' : 'text-slate-400'}`} />
+                            {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white animate-bounce">
-                                    {chats.length}
+                                    {unreadCount}
                                 </span>
                             )}
                         </button>
@@ -326,7 +333,19 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                             </td>
                                             <td className="py-4">
                                                 <div className="flex flex-col">
-                                                    <span className={`text-[10px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{v.location_city || 'Unknown'}</span>
+                                                    {v.latitude && v.longitude ? (
+                                                        <a
+                                                            href={`https://www.google.com/maps?q=${v.latitude},${v.longitude}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={`text-[10px] font-black uppercase tracking-tight flex items-center gap-1 hover:text-blue-500 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-900'}`}
+                                                        >
+                                                            <Globe className="w-3 h-3 text-blue-500" />
+                                                            {v.location_city || 'View on Map'}
+                                                        </a>
+                                                    ) : (
+                                                        <span className={`text-[10px] font-black uppercase tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{v.location_city || 'Unknown'}</span>
+                                                    )}
                                                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{v.location_country || 'Earth'}</span>
                                                 </div>
                                             </td>
@@ -357,17 +376,40 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                     const visitor = visitors.find(v => v.session_id === cid);
                                     const name = visitor?.nickname || cid.slice(0, 8);
                                     return (
-                                        <button
+                                        <div
                                             key={i}
                                             onClick={() => setSelectedChat(cid)}
-                                            className={`w-full p-4 rounded-2xl border text-left transition-all ${selectedChat === cid ? 'bg-blue-600 border-blue-600 text-white' : isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'}`}
+                                            className={`group w-full p-4 rounded-2xl border text-left transition-all cursor-pointer ${selectedChat === cid ? 'bg-blue-600 border-blue-600 text-white' : isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'}`}
                                         >
                                             <div className="flex items-center justify-between gap-2">
-                                                <p className="font-black text-[10px] uppercase truncate">{name}</p>
-                                                {visitor?.nickname && <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-tighter">Identified</span>}
+                                                {editingNickname?.id === cid ? (
+                                                    <div className="flex items-center gap-1 flex-1">
+                                                        <input
+                                                            autoFocus
+                                                            className={`w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${selectedChat === cid ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}
+                                                            value={editingNickname.name}
+                                                            onChange={(e) => setEditingNickname({ ...editingNickname, name: e.target.value })}
+                                                            onKeyDown={(e) => e.key === 'Enter' && handleUpdateNickname(cid, editingNickname.name)}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
+                                                        <button onClick={(e) => { e.stopPropagation(); handleUpdateNickname(cid, editingNickname.name); }} className="p-1 hover:text-emerald-500"><Check className="w-3 h-3" /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setEditingNickname(null); }} className="p-1 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <p className="font-black text-[10px] uppercase truncate flex-1">{name}</p>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setEditingNickname({ id: cid, name: visitor?.nickname || '' }); }}
+                                                            className={`opacity-0 group-hover:opacity-100 p-1 transition-opacity ${selectedChat === cid ? 'text-white/60 hover:text-white' : 'text-slate-500 hover:text-blue-500'}`}
+                                                        >
+                                                            <Edit2 className="w-3 h-3" />
+                                                        </button>
+                                                        {visitor?.nickname && <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter ${selectedChat === cid ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'}`}>Identified</span>}
+                                                    </>
+                                                )}
                                             </div>
-                                            <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mt-1">Chat Participant</p>
-                                        </button>
+                                            <p className={`text-[9px] font-black uppercase tracking-widest mt-1 ${selectedChat === cid ? 'opacity-80 text-white' : 'opacity-60'}`}>Chat Participant</p>
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -378,10 +420,33 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                             {selectedChat ? (
                                 <>
                                     <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
-                                        <h3 className="font-black uppercase italic tracking-tighter">
-                                            Live Session: {visitors.find(v => v.session_id === selectedChat)?.nickname || selectedChat.slice(0, 8)}
-                                        </h3>
-                                        <Check className="w-4 h-4 text-emerald-500" />
+                                        <div className="flex items-center gap-2">
+                                            {editingNickname?.id === selectedChat ? (
+                                                <div className="flex items-center gap-1">
+                                                    <input
+                                                        autoFocus
+                                                        className={`bg-white/10 border border-white/20 rounded px-2 py-1 text-[10px] outline-none ${isDark ? 'text-white' : 'text-slate-900'}`}
+                                                        value={editingNickname.name}
+                                                        onChange={(e) => setEditingNickname({ ...editingNickname, name: e.target.value })}
+                                                        onKeyDown={(e) => e.key === 'Enter' && handleUpdateNickname(selectedChat, editingNickname.name)}
+                                                    />
+                                                    <button onClick={() => handleUpdateNickname(selectedChat, editingNickname.name)} className="p-1 hover:text-emerald-500"><Check className="w-3 h-3 text-emerald-500" /></button>
+                                                    <button onClick={() => setEditingNickname(null)} className="p-1 hover:text-red-500"><X className="w-3 h-3 text-red-500" /></button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <h3 className="font-black uppercase italic tracking-tighter">
+                                                        Live Session: {visitors.find(v => v.session_id === selectedChat)?.nickname || selectedChat.slice(0, 8)}
+                                                    </h3>
+                                                    <button
+                                                        onClick={() => setEditingNickname({ id: selectedChat, name: visitors.find(v => v.session_id === selectedChat)?.nickname || '' })}
+                                                        className="p-1 text-slate-500 hover:text-blue-500 transition-colors"
+                                                    >
+                                                        <Edit2 className="w-3 h-3" />
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
                                         {chatMessages.map((m, i) => (

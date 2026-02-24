@@ -18,7 +18,9 @@ CREATE TABLE visitors (
   location_city TEXT,
   location_country TEXT,
   ip_address TEXT, -- Store raw IP for persistence logic
-  ip_mask TEXT
+  ip_mask TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION
 );
 
 -- 3. Messages Table (Real-time Chat)

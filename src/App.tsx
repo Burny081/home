@@ -101,19 +101,55 @@ export default function App() {
   useEffect(() => {
     const initSession = async () => {
       let currentIp = '';
-      let locationData = { city: '', country: '' };
+      let locationData = { city: '', country: '', lat: null as number | null, lon: null as number | null };
 
+      // 1. IP Fallback / Initial Data
       try {
         const geoRes = await fetch('https://ipapi.co/json/');
         const geoData = await geoRes.json();
         currentIp = geoData.ip;
-        locationData = { city: geoData.city, country: geoData.country_name };
+        locationData.city = geoData.city;
+        locationData.country = geoData.country_name;
       } catch (err) {
-        console.warn('Geo-fetch failed');
+        console.warn('IP Geo-fetch failed');
+      }
+
+      // 2. Browser Geolocation (Permission requested)
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          locationData.lat = latitude;
+          locationData.lon = longitude;
+
+          // Try to get city name from coordinates (Reverse Geocoding)
+          try {
+            const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const revData = await revRes.json();
+            if (revData.address) {
+              locationData.city = revData.address.city || revData.address.town || revData.address.village || locationData.city;
+              locationData.country = revData.address.country || locationData.country;
+            }
+          } catch (e) {
+            console.warn('Reverse geocoding failed');
+          }
+
+          // Update existing session with better data
+          const sid = localStorage.getItem('tcg_vault_session');
+          if (sid) {
+            await supabase.from('visitors').update({
+              location_city: locationData.city,
+              location_country: locationData.country,
+              latitude: locationData.lat,
+              longitude: locationData.lon
+            }).eq('session_id', sid);
+          }
+        }, (error) => {
+          console.log('User denied or failed geolocation:', error.message);
+        });
       }
 
       let id = localStorage.getItem('tcg_vault_session');
-      if (currentIp) {
+      if (currentIp && !id) {
         const { data: existingVisitor } = await supabase
           .from('visitors')
           .select('session_id')
@@ -131,7 +167,9 @@ export default function App() {
         last_active: new Date().toISOString(),
         ip_address: currentIp,
         location_city: locationData.city,
-        location_country: locationData.country
+        location_country: locationData.country,
+        latitude: locationData.lat,
+        longitude: locationData.lon
       }, { onConflict: 'session_id' });
     };
 
