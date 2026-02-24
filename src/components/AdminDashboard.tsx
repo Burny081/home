@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     Package, LayoutDashboard, Settings, ShoppingCart,
@@ -49,20 +49,24 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
         }
     };
 
+    // Ref so subscription closures can always read the current selectedChat
+    const selectedChatRef = useRef<string | null>(null);
+    useEffect(() => { selectedChatRef.current = selectedChat; }, [selectedChat]);
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchInitialData = async () => {
             // Fetch Visitors
             const { data: vData } = await supabase.from('visitors').select('*').order('last_active', { ascending: false });
             if (vData) setVisitors(vData);
 
-            // Fetch Chats (Latest message per session)
+            // Fetch Chats (unique sessions that have messages)
             const { data: cData } = await supabase.from('messages').select('session_id').order('created_at', { ascending: false });
             if (cData) {
                 const uniqueSessions = Array.from(new Set(cData.map(m => m.session_id)));
                 setChats(uniqueSessions);
             }
 
-            // Fetch Unread Count - grouped by session
+            // Fetch Unread Count from DB — only on initial mount
             const { data: unreadData } = await supabase
                 .from('messages')
                 .select('session_id, id')
@@ -76,28 +80,39 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                 });
                 setSessionUnread(bySession);
                 setUnreadCount(unreadData.length);
-            } else {
-                setSessionUnread({});
-                setUnreadCount(0);
             }
         };
 
-        fetchData();
+        fetchInitialData();
 
-        // Subscriptions
-        const visitorSub = supabase.channel('visitors_admin').on('postgres_changes', { event: '*', schema: 'public', table: 'visitors' }, () => {
-            fetchData();
+        // Visitors subscription: refetch visitors+sessions only (no count)
+        const visitorSub = supabase.channel('visitors_admin').on('postgres_changes', { event: '*', schema: 'public', table: 'visitors' }, async () => {
+            const { data: vData } = await supabase.from('visitors').select('*').order('last_active', { ascending: false });
+            if (vData) setVisitors(vData);
         }).subscribe();
 
-        const chatSub = supabase.channel('chats_admin').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-            fetchData();
-            if (payload.new.sender === 'user') {
-                showToast(`New Message from ${payload.new.session_id.slice(0, 8)}`, 'info');
-                // Play notification sound
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(e => console.log('Audio play failed:', e));
+        // Message subscription: manage counts LOCALLY, never re-query DB
+        const chatSub = supabase.channel('chats_admin').on('postgres_changes', {
+            event: 'INSERT', schema: 'public', table: 'messages'
+        }, async (payload) => {
+            const msg = payload.new;
+
+            // Always add new session to chats list if not present
+            setChats(prev => prev.includes(msg.session_id) ? prev : [msg.session_id, ...prev]);
+
+            if (msg.sender === 'user') {
+                const currentChat = selectedChatRef.current;
+                if (currentChat === msg.session_id) {
+                    // Admin is watching this chat — mark read immediately, don't change bell count
+                    await supabase.from('messages').update({ delivered: true, is_read: true }).eq('id', msg.id);
+                } else {
+                    // Admin is NOT watching — increment count by exactly 1
+                    setUnreadCount(prev => prev + 1);
+                    setSessionUnread(prev => ({ ...prev, [msg.session_id]: (prev[msg.session_id] || 0) + 1 }));
+                    showToast(`💬 New message from ${msg.session_id.slice(0, 8)}`, 'info');
+                    new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => { });
+                }
             }
-        }).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
-            fetchData();
         }).subscribe();
 
         return () => {
@@ -514,8 +529,8 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                             key={i}
                                             onClick={() => setSelectedChat(cid)}
                                             className={`group w-full p-4 rounded-2xl border text-left transition-all cursor-pointer relative ${isSelected ? 'bg-blue-600 border-blue-600 text-white' :
-                                                    unread > 0 ? (isDark ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-amber-50 border-amber-200 text-slate-900') :
-                                                        isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'
+                                                unread > 0 ? (isDark ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-amber-50 border-amber-200 text-slate-900') :
+                                                    isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-50 border-gray-100 text-slate-600'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between gap-2">
