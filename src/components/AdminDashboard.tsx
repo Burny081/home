@@ -320,7 +320,7 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-sm font-black italic truncate uppercase tracking-tight">{item.name}</h3>
-                                        <p className="text-[10px] font-black text-blue-600/60 uppercase tracking-widest">{item.category}</p>
+                                        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-blue-600/60'}`}>{item.category}</p>
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <button onClick={() => { setIsAddingNew(false); setEditingProduct(item); }} className="p-3 rounded-xl bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"><Edit2 className="w-4 h-4" /></button>
@@ -710,14 +710,32 @@ function ProductFormModal({ product, isNew, onClose, onSave, theme }: any) {
                             <input type="number" className={inputClasses} value={form.stock} onChange={e => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} />
                         </div>
                     </div>
-                    <div>
-                        <label className={labelClasses}>Image URL</label>
-                        <input className={inputClasses} value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ProductImagePicker
+                            label="Primary Image"
+                            value={form.image}
+                            onChange={(url: string) => setForm({ ...form, image: url })}
+                            theme={theme}
+                        />
+                        <ProductImagePicker
+                            label="Secondary (Optional)"
+                            value={form.image2}
+                            onChange={(url: string) => setForm({ ...form, image2: url })}
+                            theme={theme}
+                        />
                     </div>
                     <div>
                         <label className={labelClasses}>Category</label>
-                        <select className={inputClasses} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                            {['Singles', 'Booster Boxes', 'Elite Trainer Boxes', 'Slabs', 'Special Collections'].map(c => <option key={c} value={c}>{c}</option>)}
+                        <select
+                            className={`${inputClasses} appearance-none cursor-pointer`}
+                            value={form.category}
+                            onChange={e => setForm({ ...form, category: e.target.value })}
+                        >
+                            {['Singles', 'Booster Boxes', 'Elite Trainer Boxes', 'Slabs', 'Special Collections', 'Bundles & Tins'].map(c => (
+                                <option key={c} value={c} className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>
+                                    {c}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -728,5 +746,79 @@ function ProductFormModal({ product, isNew, onClose, onSave, theme }: any) {
                 </div>
             </motion.div>
         </motion.div>
+    );
+}
+
+function ProductImagePicker({ label, value, onChange, theme }: any) {
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const isDark = theme === 'dark';
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            setUploading(true);
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `product-images/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('products')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('products')
+                .getPublicUrl(filePath);
+
+            onChange(publicUrl);
+        } catch (error: any) {
+            alert('Error uploading image: ' + error.message);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5" />
+                {label}
+            </label>
+            <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all group ${isDark ? 'bg-white/5 border-white/10 hover:border-blue-500/50' : 'bg-gray-50 border-gray-200 hover:border-blue-500/50'
+                    }`}
+            >
+                {value ? (
+                    <>
+                        <img src={value} className="w-full h-full object-contain p-2" alt="Preview" />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <p className="text-white text-[10px] font-black uppercase tracking-widest">Change Image</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onChange(''); }}
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500 text-white shadow-lg hover:scale-110 transition-transform"
+                        >
+                            <X className="w-3 h-3" />
+                        </button>
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center gap-2">
+                        <div className={`p-3 rounded-xl ${isDark ? 'bg-white/5' : 'bg-white shadow-sm'}`}>
+                            <Plus className={`w-5 h-5 ${uploading ? 'animate-spin' : 'text-blue-600'}`} />
+                        </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                            {uploading ? 'Uploading...' : 'Upload Image'}
+                        </p>
+                    </div>
+                )}
+                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleUpload} />
+            </div>
+        </div>
     );
 }
