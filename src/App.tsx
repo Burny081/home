@@ -146,14 +146,20 @@ export default function App() {
 
           // Try to get city name from coordinates (Reverse Geocoding)
           try {
-            const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-            const revData = await revRes.json();
-            if (revData.address) {
-              locationData.city = revData.address.city || revData.address.town || revData.address.village || locationData.city;
-              locationData.country = revData.address.country || locationData.country;
+            // Use a specific User-Agent if required by Nominatim, but browser fetch has CORS limits.
+            // We'll add a check to see if we're on localhost or deploy.
+            const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, {
+              headers: { 'Accept-Language': 'en' }
+            });
+            if (revRes.ok) {
+              const revData = await revRes.json();
+              if (revData.address) {
+                locationData.city = revData.address.city || revData.address.town || revData.address.village || locationData.city;
+                locationData.country = revData.address.country || locationData.country;
+              }
             }
           } catch (e) {
-            console.warn('Reverse geocoding failed');
+            console.warn('Reverse geocoding failed (likely CORS)');
           }
 
           // Update existing session with better data
@@ -185,15 +191,18 @@ export default function App() {
       localStorage.setItem('tcg_vault_session', id);
       setSessionId(id);
 
-      await supabase.from('visitors').upsert({
+      // Sanitize visitor data for Supabase (ensure no undefined values)
+      const visitorData = {
         session_id: id,
         last_active: new Date().toISOString(),
-        ip_address: currentIp,
-        location_city: locationData.city,
-        location_country: locationData.country,
-        latitude: locationData.lat,
-        longitude: locationData.lon
-      }, { onConflict: 'session_id' });
+        ip_address: currentIp || null,
+        location_city: locationData.city || null,
+        location_country: locationData.country || null,
+        latitude: locationData.lat ?? null,
+        longitude: locationData.lon ?? null
+      };
+
+      await supabase.from('visitors').upsert(visitorData, { onConflict: 'session_id' });
     };
 
     initSession();
@@ -239,8 +248,12 @@ export default function App() {
   }, []);
 
   const addProduct = async (p: Product) => {
-    const newProduct = { ...p, id: undefined }; // Let DB handle ID if possible, or use Date.now()
-    const { data, error } = await supabase.from('products').insert([newProduct]).select();
+    // Sanitize object for Supabase
+    // 1. Remove ID so DB generates it
+    // 2. Remove 'badge' if it exists as it's not in the DB schema
+    const { id, badge, ...cleanProduct } = p as any;
+
+    const { data, error } = await supabase.from('products').insert([cleanProduct]).select();
 
     if (error) {
       showToast('Error adding product', 'info');
@@ -254,7 +267,8 @@ export default function App() {
   };
 
   const updateProduct = async (p: Product) => {
-    const { error } = await supabase.from('products').update(p).eq('id', p.id);
+    const { badge, ...cleanProduct } = p as any;
+    const { error } = await supabase.from('products').update(cleanProduct).eq('id', p.id);
 
     if (error) {
       showToast('Error updating product', 'info');
