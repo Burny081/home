@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
     Package, LayoutDashboard, Settings, ShoppingCart,
     Plus, Search, SlidersHorizontal, Edit2, Trash2, Bell, TrendingUp, Users, DollarSign,
-    X, Image as ImageIcon, Tag, Hash, Info, Check, ChevronDown, Lock, Globe, MessageSquare, Send
+    X, Image as ImageIcon, Tag, Hash, Info, Check, ChevronDown, Lock, Globe, MessageSquare, Send, ShieldOff
 } from 'lucide-react';
 import { Product } from '../types';
 import { POKEMART_ASSETS } from '../data/products';
@@ -16,10 +16,11 @@ interface AdminDashboardProps {
     onDelete: (id: number) => void;
     onClose: () => void;
     onLock: () => void;
+    showToast: (message: string, type?: 'success' | 'info') => void;
     theme: 'light' | 'dark';
 }
 
-export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, onClose, onLock, theme }: AdminDashboardProps) {
+export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, onClose, onLock, showToast, theme }: AdminDashboardProps) {
     const isDark = theme === 'dark';
     const [searchQuery, setSearchQuery] = useState('');
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -54,8 +55,11 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
             fetchData();
         }).subscribe();
 
-        const chatSub = supabase.channel('chats_admin').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+        const chatSub = supabase.channel('chats_admin').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
             fetchData();
+            if (payload.new.sender === 'user') {
+                showToast(`New Message from ${payload.new.session_id.slice(0, 8)}`, 'info');
+            }
         }).subscribe();
 
         return () => {
@@ -143,8 +147,11 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                             <Bell className="w-5 h-5 text-blue-500" />
                             {chats.length > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />}
                         </button>
-                        <button onClick={onLock} className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black uppercase text-xs transition-all border ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20' : 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100'}`}>
-                            <Lock className="w-4 h-4" />
+                        <button
+                            onClick={onLock}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border ${isDark ? 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20' : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100'}`}
+                        >
+                            <ShieldOff className="w-4 h-4" />
                             Lock Vault
                         </button>
                         <button onClick={onClose} className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white font-black uppercase text-xs shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all">

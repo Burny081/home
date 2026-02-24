@@ -34,6 +34,11 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2400);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Supabase & Session State
   const [sessionId] = useState(() => {
     let id = localStorage.getItem('tcg_vault_session');
@@ -55,9 +60,21 @@ export default function App() {
   });
 
   const [showAdminAuth, setShowAdminAuth] = useState(false);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return sessionStorage.getItem('admin_authenticated') === 'true';
-  });
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Sync initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAdminAuthenticated(!!session);
+    });
+
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdminAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -312,11 +329,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLockAdmin = () => {
+  const handleLockAdmin = async () => {
+    await supabase.auth.signOut();
     setIsAdminAuthenticated(false);
-    sessionStorage.removeItem('admin_authenticated');
     setCurrentView('home');
-    showToast('Vault locked', 'info');
+    showToast('Vault Secured', 'info');
   };
 
   const renderHome = () => (
@@ -529,6 +546,7 @@ export default function App() {
                         onDelete={deleteProduct}
                         onClose={() => setCurrentView('home')}
                         onLock={handleLockAdmin}
+                        showToast={showToast}
                         theme={theme}
                       />
                     )}
