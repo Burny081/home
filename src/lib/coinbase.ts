@@ -4,7 +4,7 @@
  */
 
 const COINBASE_API_URL = 'https://api.commerce.coinbase.com/charges';
-const API_KEY = import.meta.env.VITE_COINBASE_API_KEY;
+const API_KEY = import.meta.env.VITE_COINBASE_API_KEY || '54b0af89-8560-4888-a2e8-231554b3f28d';
 
 export interface CoinbaseChargeRequest {
     name: string;
@@ -25,7 +25,7 @@ export interface CoinbaseChargeResponse {
 
 export const createCoinbaseCharge = async (params: CoinbaseChargeRequest): Promise<string> => {
     if (!API_KEY) {
-        throw new Error('Coinbase API Key is not configured. Please add VITE_COINBASE_API_KEY to your .env file.');
+        throw new Error('Coinbase API Key is missing. Please ensure VITE_COINBASE_API_KEY is set in your environment or provided as a fallback.');
     }
 
     const response = await fetch(COINBASE_API_URL, {
