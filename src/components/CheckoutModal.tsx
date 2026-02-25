@@ -35,13 +35,23 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
         setIsProcessing(true);
         setError(null);
         try {
-            await new Promise(r => setTimeout(r, 2000)); // Simulate delay
-            setIsSuccess(true);
-            setShowSimulation(true);
-            setIsProcessing(false);
+            const chargeUrl = await createCoinbaseCharge({
+                name: 'TCG Vault Product Purchase',
+                description: `Order for ${cartItems.length} items from TCG Vault`,
+                amount: total.toString(),
+                currency: 'USD',
+                metadata: {
+                    user_session: localStorage.getItem('tcg_vault_session'),
+                    items_count: cartItems.length,
+                    selected_coin: selectedCoin
+                }
+            });
+
+            // Redirect to Coinbase hosted checkout
+            window.location.href = chargeUrl;
         } catch (err: any) {
-            console.error('Simulation Error:', err);
-            setError('Payment initializing failed');
+            console.error('Coinbase Error:', err);
+            setError(err.message || 'Payment initializing failed');
             setIsProcessing(false);
         }
     };
@@ -159,10 +169,10 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                                                     setError(null);
                                                 }}
                                                 className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer ${isSelected
-                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                                        : isDark
-                                                            ? 'bg-white/5 border-white/5 hover:border-white/20'
-                                                            : 'bg-white border-gray-100 shadow-sm hover:border-gray-200'
+                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                    : isDark
+                                                        ? 'bg-white/5 border-white/5 hover:border-white/20'
+                                                        : 'bg-white border-gray-100 shadow-sm hover:border-gray-200'
                                                     }`}
                                             >
                                                 <span className={`text-sm font-black tracking-tighter ${isSelected ? 'text-white' : ''}`}>{coin}</span>
@@ -185,8 +195,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                                     <button
                                         onClick={handlePayCoinbase}
                                         className={`w-full py-4 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all ${selectedCoin
-                                                ? 'bg-blue-600 text-white shadow-blue-500/20'
-                                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                            ? 'bg-blue-600 text-white shadow-blue-500/20'
+                                            : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                                             }`}
                                     >
                                         Place Transaction
