@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 
 import { createCoinbaseCharge } from '../lib/coinbase';
+import OrderSimulation from './OrderSimulation';
+import { CartItem } from '../types';
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -13,35 +15,33 @@ interface CheckoutModalProps {
     onOtherMethod: () => void;
     total: number;
     theme: 'light' | 'dark';
+    cartItems: CartItem[];
 }
 
-const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherMethod, total, theme }) => {
+const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherMethod, total, theme, cartItems }) => {
     const isDark = theme === 'dark';
     const [step, setStep] = useState<'methods' | 'coinbase'>('methods');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [showSimulation, setShowSimulation] = useState(false);
+    const [selectedCoin, setSelectedCoin] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handlePayCoinbase = async () => {
+        if (!selectedCoin) {
+            setError('Please select a crypto asset');
+            return;
+        }
         setIsProcessing(true);
         setError(null);
         try {
-            const checkoutUrl = await createCoinbaseCharge({
-                name: 'TCG Vault Purchase',
-                description: `Vault Transaction for ${total.toLocaleString()} USD`,
-                amount: total.toString(),
-                currency: 'USD',
-                metadata: {
-                    source: 'TCG Vault Web',
-                    total: total
-                }
-            });
-
-            // Redirect to real Coinbase hosted page
-            window.location.href = checkoutUrl;
+            await new Promise(r => setTimeout(r, 2000)); // Simulate delay
+            setIsSuccess(true);
+            setShowSimulation(true);
+            setIsProcessing(false);
         } catch (err: any) {
-            console.error('Coinbase Error:', err);
-            setError(err.message || 'Payment initializing failed');
+            console.error('Simulation Error:', err);
+            setError('Payment initializing failed');
             setIsProcessing(false);
         }
     };
@@ -53,18 +53,22 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md"
+            className={`fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md ${showSimulation ? 'items-end sm:items-center' : ''}`}
             onClick={onClose}
         >
             <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className={`w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-gray-100'}`}
+                className={`w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-gray-100'} ${showSimulation ? 'max-h-[90vh] sm:max-h-[80vh]' : ''}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <AnimatePresence mode="wait">
-                    {isSuccess ? (
+                    {showSimulation ? (
+                        <motion.div key="simulation" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                            <OrderSimulation cartItems={cartItems} total={total} onClose={onClose} />
+                        </motion.div>
+                    ) : isSuccess ? (
                         <motion.div
                             key="success"
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -77,10 +81,10 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                             <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Order Confirmed</h2>
                             <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mb-8">Vault Transaction Successful</p>
                             <button
-                                onClick={onClose}
+                                onClick={() => setShowSimulation(true)}
                                 className="w-full py-4 rounded-2xl bg-blue-600 text-white font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-blue-500/20"
                             >
-                                Return to Vault
+                                View Order Details
                             </button>
                         </motion.div>
                     ) : step === 'methods' ? (
@@ -135,7 +139,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                     ) : (
                         <motion.div key="coinbase" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8">
                             <div className="flex items-center gap-4 mb-8">
-                                <button onClick={() => setStep('methods')} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"><X className="rotate-90" /></button>
+                                <button onClick={() => { setStep('methods'); setSelectedCoin(null); }} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"><X className="rotate-90" /></button>
                                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                                     <Bitcoin className="w-5 h-5 text-white" />
                                 </div>
@@ -145,12 +149,27 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                             <div className={`p-6 rounded-3xl border mb-8 ${isDark ? 'bg-black/40 border-white/5' : 'bg-gray-50 border-gray-200'}`}>
                                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">Select Crypto Asset</p>
                                 <div className="grid grid-cols-2 gap-4 mb-6">
-                                    {['BTC', 'ETH', 'USDC', 'SOL'].map(coin => (
-                                        <div key={coin} className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-blue-500/50 ${isDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}>
-                                            <span className="text-sm font-black tracking-tighter">{coin}</span>
-                                            <div className="w-2 h-2 rounded-full bg-slate-700" />
-                                        </div>
-                                    ))}
+                                    {['BTC', 'ETH', 'USDC', 'SOL'].map(coin => {
+                                        const isSelected = selectedCoin === coin;
+                                        return (
+                                            <div
+                                                key={coin}
+                                                onClick={() => {
+                                                    setSelectedCoin(coin);
+                                                    setError(null);
+                                                }}
+                                                className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer ${isSelected
+                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                        : isDark
+                                                            ? 'bg-white/5 border-white/5 hover:border-white/20'
+                                                            : 'bg-white border-gray-100 shadow-sm hover:border-gray-200'
+                                                    }`}
+                                            >
+                                                <span className={`text-sm font-black tracking-tighter ${isSelected ? 'text-white' : ''}`}>{coin}</span>
+                                                <div className={`w-2 h-2 rounded-full transition-all ${isSelected ? 'bg-white scale-110' : 'bg-slate-700'}`} />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                                 {error && (
                                     <div className="mb-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
@@ -165,7 +184,10 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                                 ) : (
                                     <button
                                         onClick={handlePayCoinbase}
-                                        className="w-full py-4 rounded-[1.5rem] bg-blue-600 text-white font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+                                        className={`w-full py-4 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all ${selectedCoin
+                                                ? 'bg-blue-600 text-white shadow-blue-500/20'
+                                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                            }`}
                                     >
                                         Place Transaction
                                     </button>

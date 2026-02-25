@@ -8,7 +8,7 @@ import {
   Layers, Award, Plus, Home, User, X, ChevronRight,
   Heart, BarChart3, Wallet, Settings, HelpCircle, CreditCard,
   Sun, Moon, LayoutGrid, Crown, Facebook, Gavel,
-  MessageSquare
+  MessageSquare, CheckCircle2, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import SplashScreen from './SplashScreen';
@@ -661,6 +661,7 @@ export default function App() {
                     setIsChatOpen(true);
                   }}
                   total={cartTotal}
+                  cartItems={cartItems}
                   theme={theme}
                 />
               )}
@@ -801,15 +802,19 @@ export default function App() {
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, y: 50, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: 20, x: '-50%' }}
-            className={`fixed bottom-24 left-1/2 z-[100] border px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px] ${theme === 'dark' ? 'bg-slate-900 border-white/10' : 'bg-white border-gray-200'}`}
+            initial={{ opacity: 0, y: 50, scale: 0.9, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, scale: 0.9, x: '-50%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className={`fixed bottom-8 left-1/2 z-[200] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-xl border ${theme === 'dark' ? 'bg-slate-900/90 border-white/10 shadow-black/50' : 'bg-white/90 border-gray-200 shadow-blue-900/10'}`}
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
-              <span className="material-symbols-outlined text-blue-500 text-lg">check_circle</span>
+            <div className={`flex items-center justify-center p-2 rounded-xl ${toast.type === 'success'
+              ? (theme === 'dark' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600')
+              : (theme === 'dark' ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600')
+              }`}>
+              {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <Info className="w-5 h-5" />}
             </div>
-            <p className={`text-sm font-bold tracking-wide ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{toast.message}</p>
+            <p className={`text-sm font-bold tracking-tight pr-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{toast.message}</p>
           </motion.div>
         )}
       </AnimatePresence>
