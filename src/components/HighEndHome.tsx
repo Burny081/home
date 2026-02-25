@@ -165,7 +165,19 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                                 </div>
                                 <div className="absolute bottom-4 left-4 right-4">
                                     <p className={`truncate text-sm font-bold mb-1 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{product.name}</p>
-                                    <p className={`text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>${product.price.toLocaleString()}</p>
+                                    <div className="flex items-center justify-between">
+                                        <p className={`text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>${product.price.toLocaleString()}</p>
+                                        {product.stock > 0 && product.stock <= 5 && (
+                                            <span className="text-[9px] font-black text-[#f45925] uppercase tracking-tighter animate-pulse">
+                                                Only {product.stock} left
+                                            </span>
+                                        )}
+                                        {product.stock === 0 && (
+                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
+                                                Sold Out
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}

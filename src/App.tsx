@@ -45,7 +45,6 @@ export default function App() {
     const saved = localStorage.getItem('tcg_vault_session');
     if (saved) return saved;
 
-    // Robust UUID Fallback
     const generateUUID = () => {
       try {
         if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -62,7 +61,6 @@ export default function App() {
     return newId;
   });
 
-  // Phase 14: Dynamic Products & Theme
   const [liveProducts, setLiveProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('tcg_vault_products');
     return saved ? JSON.parse(saved) : PRODUCTS;
@@ -87,10 +85,7 @@ export default function App() {
         return;
       }
 
-      // Merge Strategy: Start with mock PRODUCTS
-      // Overwrite with DB items where IDs match, and Append new DB items
       const merged = [...PRODUCTS];
-
       if (dbData) {
         dbData.forEach((dbItem: Product) => {
           const index = merged.findIndex(m => m.id === dbItem.id);
@@ -101,23 +96,19 @@ export default function App() {
           }
         });
       }
-
       setLiveProducts(merged);
     };
 
     fetchProducts();
-    // Sync initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAdminAuthenticated(!!session);
     });
-
-    // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAdminAuthenticated(!!session);
     });
-
     return () => subscription.unsubscribe();
   }, []);
+
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -133,86 +124,17 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
-
   useEffect(() => {
     const initSession = async () => {
-      let currentIp = '';
-      let locationData = { city: '', country: '', lat: null as number | null, lon: null as number | null };
-
-      // 1. Immediate minimal upsert to ensure foreign key safety for chat
       await supabase.from('visitors').upsert({
         session_id: sessionId,
         last_active: new Date().toISOString()
       }, { onConflict: 'session_id' });
-
-      // 1. IP Fallback / Initial Data
-      try {
-        const geoRes = await fetch('https://ipapi.co/json/');
-        const geoData = await geoRes.json();
-        currentIp = geoData.ip;
-        locationData.city = geoData.city;
-        locationData.country = geoData.country_name;
-      } catch (err) {
-        console.warn('IP Geo-fetch failed');
-      }
-
-      // 2. Browser Geolocation (Permission requested)
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-          locationData.lat = latitude;
-          locationData.lon = longitude;
-
-          // Try to get city name from coordinates (Reverse Geocoding)
-          try {
-            // Use a specific User-Agent if required by Nominatim, but browser fetch has CORS limits.
-            // We'll add a check to see if we're on localhost or deploy.
-            const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, {
-              headers: { 'Accept-Language': 'en' }
-            });
-            if (revRes.ok) {
-              const revData = await revRes.json();
-              if (revData.address) {
-                locationData.city = revData.address.city || revData.address.town || revData.address.village || locationData.city;
-                locationData.country = revData.address.country || locationData.country;
-              }
-            }
-          } catch (e) {
-            console.warn('Reverse geocoding failed (likely CORS)');
-          }
-
-          // Update existing session with better data
-          await supabase.from('visitors').update({
-            location_city: locationData.city,
-            location_country: locationData.country,
-            latitude: locationData.lat,
-            longitude: locationData.lon
-          }).eq('session_id', sessionId);
-        }, (error) => {
-          console.log('User denied or failed geolocation:', error.message);
-        });
-      }
-
-      // 4. Final detailed upsert using the stable sessionId
-      const visitorData = {
-        session_id: sessionId,
-        last_active: new Date().toISOString(),
-        ip_address: currentIp || null,
-        location_city: locationData.city || null,
-        location_country: locationData.country || null,
-        latitude: locationData.lat ?? null,
-        longitude: locationData.lon ?? null
-      };
-
-      await supabase.from('visitors').upsert(visitorData, { onConflict: 'session_id' });
     };
-
     initSession();
   }, [sessionId]);
 
-
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
-
   const cartTotal = useMemo(() => {
     const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -220,6 +142,13 @@ export default function App() {
     const shipping = (subtotal - discount) > 150 ? 0 : 9.99;
     return (subtotal - discount) + shipping;
   }, [cartItems]);
+
+  const handleLockAdmin = async () => {
+    await supabase.auth.signOut();
+    setIsAdminAuthenticated(false);
+    setCurrentView('home');
+    showToast('Admin session locked', 'info');
+  };
 
   const renderSettings = () => (
     <SettingsView
@@ -230,7 +159,6 @@ export default function App() {
     />
   );
 
-  // Global Notification Listener
   useEffect(() => {
     const channel = supabase
       .channel('broadcast_notifications')
@@ -243,25 +171,18 @@ export default function App() {
         showToast(message, type || 'info');
       })
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
   const addProduct = async (p: Product) => {
-    // Sanitize object for Supabase
-    // 1. Remove ID so DB generates it
-    // 2. Remove 'badge' if it exists as it's not in the DB schema
     const { id, badge, ...cleanProduct } = p as any;
-
     const { data, error } = await supabase.from('products').insert([cleanProduct]).select();
-
     if (error) {
       showToast('Error adding product', 'info');
       return;
     }
-
     if (data) {
       setLiveProducts(prev => [...prev, data[0]]);
       showToast(`Product ${p.name} created`);
@@ -271,12 +192,10 @@ export default function App() {
   const updateProduct = async (p: Product) => {
     const { badge, ...cleanProduct } = p as any;
     const { error } = await supabase.from('products').update(cleanProduct).eq('id', p.id);
-
     if (error) {
       showToast('Error updating product', 'info');
       return;
     }
-
     setLiveProducts(prev => prev.map(item => item.id === p.id ? p : item));
     showToast(`Updated ${p.name}`);
   };
@@ -284,12 +203,10 @@ export default function App() {
   const deleteProduct = async (id: number) => {
     const p = liveProducts.find(x => x.id === id);
     const { error } = await supabase.from('products').delete().eq('id', id);
-
     if (error) {
       showToast('Error deleting product', 'info');
       return;
     }
-
     setLiveProducts(prev => prev.filter(item => item.id !== id));
     if (p) showToast(`Deleted ${p.name}`, 'info');
   };
@@ -297,240 +214,121 @@ export default function App() {
   const addToCart = (product: Product, qty: number = 1) => {
     setCartItems(prev => {
       const existing = prev.find(i => i.product.id === product.id);
+      const currentQty = existing ? existing.quantity : 0;
+      if (currentQty + qty > product.stock) {
+        showToast(`Only ${product.stock} items left in stock`, 'info');
+        return prev;
+      }
       showToast(`Added ${product.name} to cart`);
       if (existing) return prev.map(i => i.product.id === product.id ? { ...i, quantity: i.quantity + qty } : i);
       return [...prev, { product, quantity: qty }];
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setCartItems(prev => prev.filter(i => i.product.id !== productId));
+  const removeFromCart = (id: number) => {
+    setCartItems(prev => prev.filter(i => i.product.id !== id));
+    showToast('Removed from cart', 'info');
   };
 
   const changeQty = (productId: number, delta: number) => {
-    setCartItems(prev => prev
-      .map(i => i.product.id === productId ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i)
-    );
+    setCartItems(prev => prev.map(i => {
+      if (i.product.id === productId) {
+        const nextQty = Math.max(1, i.quantity + delta);
+        if (nextQty > i.product.stock) {
+          showToast(`Only ${i.product.stock} items available`, 'info');
+          return i;
+        }
+        return { ...i, quantity: nextQty };
+      }
+      return i;
+    }));
   };
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => {
       const next = new Set(prev);
-      const product = liveProducts.find(p => p.id === id);
-      if (next.has(id)) {
-        next.delete(id);
-        if (product) showToast(`Removed ${product.name} from favorites`);
-      } else {
-        next.add(id);
-        if (product) showToast(`Added ${product.name} to favorites`);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
-  const filteredProducts = useMemo(() => {
-    let list = liveProducts;
-    if (currentView === 'favorites') list = liveProducts.filter(p => favorites.has(p.id));
-    if (activeCategory !== 'all') list = list.filter(p => p.category === activeCategory);
-    if (searchQuery) list = list.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    return list;
-  }, [liveProducts, activeCategory, searchQuery, favorites, currentView]);
-
-  const renderProductCard = (product: Product) => (
-    <motion.div
-      key={product.id}
-      layout
-      initial={{ opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -6 }}
-      onClick={() => setSelectedProduct(product)}
-      className={`group relative flex flex-col overflow-hidden rounded-3xl border cursor-pointer transition-all shadow-sm hover:shadow-xl ${theme === 'dark' ? 'bg-slate-900 border-white/5 hover:border-blue-500/30' : 'bg-white border-gray-100 hover:border-blue-300'}`}
-    >
-      <div className={`relative aspect-[4/5] w-full overflow-hidden p-5 flex items-center justify-center ${theme === 'dark' ? 'bg-black/20' : 'bg-gray-50'}`}>
-        <img
-          alt={product.name}
-          className="relative z-10 h-full w-auto object-contain transition-transform duration-700 group-hover:scale-110 drop-shadow-xl"
-          src={product.image}
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
-          {product.badge ? (
-            <span className={`rounded-lg px-2.5 py-1 text-[10px] font-black border uppercase tracking-wider ${theme === 'dark' ? 'bg-blue-600/20 border-blue-500/30 text-blue-400' : 'bg-blue-100 text-blue-600 border-blue-200'}`}>
-              {product.badge}
-            </span>
-          ) : <span />}
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
-            className={`p-2.5 rounded-2xl backdrop-blur-md transition-all active:scale-95 shadow-md ${favorites.has(product.id) ? 'bg-red-500 text-white' : theme === 'dark' ? 'bg-black/60 text-slate-400 hover:text-red-500' : 'bg-white/80 text-slate-400 hover:text-red-500'}`}
-          >
-            <Heart className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-current' : ''}`} />
-          </button>
-        </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-          className="absolute bottom-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-500/40 transition-all hover:bg-blue-700 hover:scale-110 active:scale-90"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
-      </div>
-      <div className="flex flex-1 flex-col p-4">
-        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded mb-2 inline-block w-fit ${theme === 'dark' ? 'bg-blue-600/20 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
-          {product.category}
-        </span>
-        <h3 className={`line-clamp-2 text-sm font-bold leading-tight mb-3 transition-colors ${theme === 'dark' ? 'text-slate-200 group-hover:text-blue-400' : 'text-slate-800 group-hover:text-blue-600'}`}>
-          {product.name}
-        </h3>
-        <div className="mt-auto flex items-center justify-between">
-          <p className={`text-lg font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>${product.price.toFixed(2)}</p>
-          <span className={`flex items-center gap-1.5 text-[10px] font-bold ${product.stock <= 5 ? 'text-red-500' : 'text-emerald-500'}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            {product.stock <= 5 ? `Only ${product.stock} left` : 'In Stock'}
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const [logoClicks, setLogoClicks] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentHeroIndex(prev => (prev + 1) % FEATURED_IMAGES.length);
-    }, 15000); // 15 seconds
-    return () => clearInterval(timer);
-  }, []);
-
   const handleLogoClick = () => {
-    const next = logoClicks + 1;
-    if (next >= 7) {
-      setLogoClicks(0);
-      if (isAdminAuthenticated) {
-        setCurrentView('admin');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        setShowAdminAuth(true);
-      }
-    } else {
-      setLogoClicks(next);
-      setTimeout(() => setLogoClicks(0), 2000);
-    }
+    if (isAdminAuthenticated) setCurrentView('admin');
+    else setCurrentView('home');
   };
 
   const handleAdminAuthSuccess = () => {
     setIsAdminAuthenticated(true);
-    sessionStorage.setItem('admin_authenticated', 'true');
     setShowAdminAuth(false);
     setCurrentView('admin');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('Admin access granted');
   };
 
-  const handleLockAdmin = async () => {
-    // Use 'local' scope so we only clear this browser's admin session.
-    // Global signOut would revoke the token server-side and kill ALL
-    // real-time subscriptions (visitor chat, notifications, etc.) for this client.
-    await supabase.auth.signOut({ scope: 'local' });
-    setIsAdminAuthenticated(false);
-    sessionStorage.removeItem('admin_authenticated');
-    setCurrentView('home');
-    showToast('Vault Secured 🔒', 'info');
+  const reduceStock = async (items: CartItem[]) => {
+    const updates = items.map(async (item) => {
+      const newStock = Math.max(0, item.product.stock - item.quantity);
+      const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', item.product.id);
+      if (error) console.error(`Error updating stock for ${item.product.name}:`, error);
+      if (newStock === 0) {
+        await supabase.from('notifications').insert([{
+          message: `STOCK ALERT: ${item.product.name} is now out of stock!`,
+          type: 'warning'
+        }]);
+      }
+      return { id: item.product.id, stock: newStock };
+    });
+    const results = await Promise.all(updates);
+    setLiveProducts(prev => prev.map(p => {
+      const update = results.find(r => r.id === p.id);
+      return update ? { ...p, stock: update.stock } : p;
+    }));
+    setCartItems([]);
   };
 
   const renderHome = () => (
     <HighEndHome
-      products={liveProducts}
-      onAddToCart={addToCart}
-      onProductClick={setSelectedProduct}
-      onToggleFavorite={(p) => toggleFavorite(p.id)}
-      favorites={Array.from(favorites)}
       theme={theme}
-      onShopClick={() => setCurrentView('shop')}
+      featuredImages={FEATURED_IMAGES}
+      products={liveProducts}
+      onProductClick={setSelectedProduct}
+      onAddToCart={addToCart}
+      onToggleFavorite={toggleFavorite}
+      favorites={favorites}
+      activeCategory={activeCategory}
+      onCategoryChange={setActiveCategory}
+      searchQuery={searchQuery}
     />
   );
 
-  const renderShop = () => (
-    <div className="mb-24">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h3 className={`text-3xl font-black italic uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Full Marketplace</h3>
-          <p className="text-sm font-bold text-slate-400">{filteredProducts.length} items available</p>
-        </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
-          {CATEGORIES.map((cat) => (
-            <button key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex-none px-4 py-2 rounded-xl text-xs font-black uppercase border-2 transition-all ${activeCategory === cat.id ? 'bg-blue-600 border-blue-600 text-white' : theme === 'dark' ? 'bg-white/5 border-white/5 text-slate-400 hover:border-blue-500/30' : 'bg-white border-gray-100 text-slate-400 hover:border-blue-100 hover:text-blue-600'}`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-        {filteredProducts.map(renderProductCard)}
-      </div>
-    </div>
-  );
-
-  const renderFavorites = () => (
-    <div className="mb-24">
-      <div className="mb-8">
-        <h3 className={`text-3xl font-black italic uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Your Favorites</h3>
-        <p className="text-sm font-bold text-slate-400">{favorites.size} saved items</p>
-      </div>
-      {favorites.size > 0 ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-          {filteredProducts.map(renderProductCard)}
-        </div>
-      ) : (
-        <div className={`flex flex-col items-center justify-center py-20 rounded-[2rem] border-2 border-dashed ${theme === 'dark' ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-gray-50 border-gray-200'}`}>
-          <Heart className="w-16 h-16 text-gray-300 mb-4" />
-          <p className="text-lg font-bold">Nothing saved yet.</p>
-          <button onClick={() => setCurrentView('shop')} className="mt-4 text-blue-600 font-bold hover:underline">Browse the shop →</button>
-        </div>
-      )}
-    </div>
-  );
-
+  const renderShop = () => renderHome();
+  const renderFavorites = () => renderHome();
   const renderAuctions = () => (
-    <div className="flex flex-col items-center justify-center py-40">
-      <div className="bg-blue-600 p-6 rounded-[2rem] shadow-2xl mb-8"><Gavel className="w-20 h-20 text-white animate-bounce" /></div>
-      <h3 className="text-4xl font-black text-slate-900 italic uppercase mb-4">Live Auctions</h3>
-      <p className="text-slate-500 font-bold text-center max-w-md">Join our Discord to get notified when the next live bidding session begins!</p>
-      <button className="mt-8 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase text-sm hover:scale-105 transition-all active:scale-95">Join Discord Community</button>
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mb-6">
+        <Gavel className="w-10 h-10 text-amber-500" />
+      </div>
+      <h2 className="text-2xl font-black mb-2 uppercase tracking-tight holographic-text">Elite Auctions</h2>
+      <p className="text-slate-500 max-w-xs mx-auto text-sm font-medium">Weekly live-breaking events and high-end individual card auctions arriving next season.</p>
+    </div>
+  );
+  const renderPortfolio = () => (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center mb-6">
+        <BarChart3 className="w-10 h-10 text-blue-500" />
+      </div>
+      <h2 className="text-2xl font-black mb-2 uppercase tracking-tight holographic-text">Collection Tracker</h2>
+      <p className="text-slate-500 max-w-xs mx-auto text-sm font-medium">Track your investment portfolio, see daily price changes, and manage your vault contents.</p>
     </div>
   );
 
-  const renderPortfolio = () => (
-    <div className="mb-20">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        {[
-          { bg: 'bg-slate-900', icon: <Wallet className="w-20 h-20" />, label: 'Total Value', value: '$12,450.80', sub: '+12.5% this month', subColor: 'text-green-400' },
-          { bg: 'bg-blue-600', icon: <BarChart3 className="w-20 h-20" />, label: 'Active Assets', value: '42 Items', sub: '12 Graded • 30 Sealed', subColor: 'text-white/80' },
-        ].map((c, i) => (
-          <div key={i} className={`${c.bg} rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group`}>
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">{c.icon}</div>
-            <p className="text-xs font-black uppercase tracking-widest text-blue-200 mb-2">{c.label}</p>
-            <h4 className="text-4xl font-black italic mb-3">{c.value}</h4>
-            <p className={`text-sm font-bold ${c.subColor}`}>{c.sub}</p>
-          </div>
-        ))}
-        <div className="bg-gray-100 rounded-[2.5rem] p-8 text-slate-900 shadow-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-8 opacity-10"><Award className="w-20 h-20" /></div>
-          <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Member Tier</p>
-          <h4 className="text-4xl font-black italic mb-3">Elite Gold</h4>
-          <p className="text-sm font-bold text-blue-600">Top 1% Collector</p>
-        </div>
-      </div>
-    </div>
-  );
+  const currentHeroIndex = 0;
 
   return (
     <div className={`min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-white text-slate-900'}`} data-theme={theme}>
       <AnimatePresence>{showSplash && <SplashScreen key="splash" />}</AnimatePresence>
 
       <div className="relative flex min-h-screen w-full flex-col">
-        {/* Header */}
         <header className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all ${theme === 'dark' ? 'bg-slate-950/80 border-white/5' : 'bg-white/80 border-gray-100'}`}>
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="flex items-center justify-between h-16 md:h-20">
@@ -609,48 +407,42 @@ export default function App() {
           </div>
         </header>
 
-        {/* Main */}
         <main className="flex-1">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10">
             <AnimatePresence mode="wait">
               <motion.div key={currentView}
                 initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }} transition={{ duration: 0.25 }}
               >
-                {currentHeroIndex !== -1 && (
-                  <>
-                    {currentView === 'home' && renderHome()}
-                    {currentView === 'shop' && renderShop()}
-                    {currentView === 'favorites' && renderFavorites()}
-                    {currentView === 'auctions' && renderAuctions()}
-                    {currentView === 'settings' && renderSettings()}
-                    {currentView === 'profile' && renderPortfolio()}
-                    {currentView === 'cart' && (
-                      <CartView
-                        cartItems={cartItems}
-                        onRemove={removeFromCart}
-                        onChangeQty={changeQty}
-                        onShop={() => setCurrentView('shop')}
-                        onCheckout={() => setIsCheckoutOpen(true)}
-                      />
-                    )}
-                    {currentView === 'admin' && (
-                      <AdminDashboard
-                        products={liveProducts}
-                        onAdd={addProduct}
-                        onUpdate={updateProduct}
-                        onDelete={deleteProduct}
-                        onClose={() => setCurrentView('home')}
-                        onLock={handleLockAdmin}
-                        showToast={showToast}
-                        theme={theme}
-                      />
-                    )}
-                  </>
+                {currentView === 'home' && renderHome()}
+                {currentView === 'shop' && renderShop()}
+                {currentView === 'favorites' && renderFavorites()}
+                {currentView === 'auctions' && renderAuctions()}
+                {currentView === 'settings' && renderSettings()}
+                {currentView === 'profile' && renderPortfolio()}
+                {currentView === 'cart' && (
+                  <CartView
+                    cartItems={cartItems}
+                    onRemove={removeFromCart}
+                    onChangeQty={changeQty}
+                    onShop={() => setCurrentView('shop')}
+                    onCheckout={() => setIsCheckoutOpen(true)}
+                  />
+                )}
+                {currentView === 'admin' && (
+                  <AdminDashboard
+                    products={liveProducts}
+                    onAdd={addProduct}
+                    onUpdate={updateProduct}
+                    onDelete={deleteProduct}
+                    onClose={() => setCurrentView('home')}
+                    onLock={handleLockAdmin}
+                    showToast={showToast}
+                    theme={theme}
+                  />
                 )}
               </motion.div>
             </AnimatePresence>
 
-            {/* Overlays */}
             <AnimatePresence>
               {isCheckoutOpen && (
                 <CheckoutModal
@@ -660,6 +452,7 @@ export default function App() {
                     setIsCheckoutOpen(false);
                     setIsChatOpen(true);
                   }}
+                  onSuccess={() => reduceStock(cartItems)}
                   total={cartTotal}
                   cartItems={cartItems}
                   theme={theme}
@@ -676,7 +469,6 @@ export default function App() {
           </div>
         </main>
 
-        {/* Mobile Bottom Nav - Fixed Under */}
         <nav className={`fixed bottom-0 left-0 right-0 md:hidden z-50 border-t safe-area-bottom shadow-[0_-10px_30px_rgba(0,0,0,0.1)] ${theme === 'dark' ? 'bg-slate-950/95 border-white/5 backdrop-blur-xl' : 'bg-white/95 border-gray-100 backdrop-blur-xl'}`}>
           <div className="flex justify-around items-center h-16 px-2">
             {[
@@ -703,7 +495,6 @@ export default function App() {
         </nav>
       </div>
 
-      {/* Side Drawer */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -729,7 +520,7 @@ export default function App() {
                 ].map((item, idx) => (
                   <button key={idx}
                     onClick={() => { if (item.id) { setCurrentView(item.id); setIsMenuOpen(false); } }}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl transition-all group ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-blue-50'}`}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl transition-all group ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
@@ -738,26 +529,17 @@ export default function App() {
                     <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-blue-600 transition-all" />
                   </button>
                 ))}
-
-                {/* Social Links */}
+                
                 <div className="mt-6 px-3.5">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">Follow the King</p>
                   <div className="flex gap-2">
-                    <a
-                      href="https://www.tiktok.com/@christcg_pokemon?_r=1&_t=ZT-946ZL8PzeGb"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-100 hover:bg-blue-50 text-slate-700'}`}
-                    >
+                    <a href="https://www.tiktok.com/@christcg_pokemon?_r=1&_t=ZT-946ZL8PzeGb" target="_blank" rel="noopener noreferrer"
+                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-100 hover:bg-blue-50 text-slate-700'}`}>
                       <Zap className="w-4 h-4 text-amber-500" />
                       <span className="text-xs font-black uppercase tracking-tight">TikTok</span>
                     </a>
-                    <a
-                      href="https://www.facebook.com/share/1Hr39HLX5J/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-100 hover:bg-blue-50 text-slate-700'}`}
-                    >
+                    <a href="https://www.facebook.com/share/1Hr39HLX5J/" target="_blank" rel="noopener noreferrer"
+                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-gray-50 border-gray-100 hover:bg-blue-50 text-slate-700'}`}>
                       <Facebook className="w-4 h-4 text-blue-600" />
                       <span className="text-xs font-black uppercase tracking-tight">Facebook</span>
                     </a>
@@ -776,7 +558,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Product Detail Modal */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}
@@ -787,7 +568,6 @@ export default function App() {
         />
       )}
 
-      {/* Admin Auth Modal */}
       <AnimatePresence>
         {showAdminAuth && (
           <AdminAuthModal
@@ -798,7 +578,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* GLOBAL TOAST */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -818,7 +597,6 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <style dangerouslySetInnerHTML={{ __html: `.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}` }} />
     </div>
   );

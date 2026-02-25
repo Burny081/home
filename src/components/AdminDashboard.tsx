@@ -374,7 +374,19 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                         <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-sm font-black italic truncate uppercase tracking-tight">{item.name}</h3>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-sm font-black italic truncate uppercase tracking-tight">{item.name}</h3>
+                                            {item.stock === 0 && (
+                                                <span className="px-2 py-0.5 rounded-full bg-red-500 text-[8px] font-black text-white uppercase tracking-tighter animate-pulse">
+                                                    Out of Stock
+                                                </span>
+                                            )}
+                                            {item.stock > 0 && item.stock <= 5 && (
+                                                <span className="px-2 py-0.5 rounded-full bg-amber-500 text-[8px] font-black text-white uppercase tracking-tighter">
+                                                    Low Stock: {item.stock}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-blue-600/60'}`}>{item.category}</p>
                                     </div>
                                     <div className="flex flex-col gap-2">

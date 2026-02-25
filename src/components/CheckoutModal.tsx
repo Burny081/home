@@ -13,12 +13,13 @@ interface CheckoutModalProps {
     isOpen: boolean;
     onClose: () => void;
     onOtherMethod: () => void;
+    onSuccess?: () => void;
     total: number;
     theme: 'light' | 'dark';
     cartItems: CartItem[];
 }
 
-const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherMethod, total, theme, cartItems }) => {
+const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherMethod, onSuccess, total, theme, cartItems }) => {
     const isDark = theme === 'dark';
     const [step, setStep] = useState<'methods' | 'coinbase'>('methods');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -46,6 +47,9 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                     selected_coin: selectedCoin
                 }
             });
+
+            // Trigger stock reduction BEFORE redirect or during simulation
+            if (onSuccess) onSuccess();
 
             // Redirect to Coinbase hosted checkout
             window.location.href = chargeUrl;
