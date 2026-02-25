@@ -12,7 +12,7 @@ import { CartItem } from '../types';
 interface CheckoutModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onOtherMethod: () => void;
+    onOtherMethod: (message: string) => void;
     onSuccess?: () => void;
     total: number;
     theme: 'light' | 'dark';
@@ -27,6 +27,16 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
     const [showSimulation, setShowSimulation] = useState(false);
     const [selectedCoin, setSelectedCoin] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const generateOrderSummary = () => {
+        const itemsList = cartItems.map(item => `- ${item.product.name} (x${item.quantity})`).join('\n');
+        return `Hello! I would like to pay for my order using another method.
+Order Details:
+${itemsList}
+Total: $${total.toLocaleString()}
+
+Please provide instructions for completing this transaction.`;
+    };
 
     const handlePayCoinbase = async () => {
         if (!selectedCoin) {
@@ -129,7 +139,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, onOtherM
                                 </button>
 
                                 <button
-                                    onClick={onOtherMethod}
+                                    onClick={() => onOtherMethod(generateOrderSummary())}
                                     className={`w-full p-5 rounded-3xl border flex items-center justify-between transition-all group hover:scale-[1.02] active:scale-[0.98] ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-gray-50 border-gray-100'}`}
                                 >
                                     <div className="flex items-center gap-4">

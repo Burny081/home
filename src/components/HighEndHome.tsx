@@ -1,7 +1,7 @@
 import React from 'react';
 import { Product } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp, Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Plus, Package, TrendingUp, Heart, ShoppingBag, ArrowRight, ShoppingCart } from 'lucide-react';
 
 interface HighEndHomeProps {
     products: Product[];
@@ -11,131 +11,196 @@ interface HighEndHomeProps {
     favorites: number[];
     theme: 'light' | 'dark';
     onShopClick: () => void;
+    onCartClick: () => void;
+    cartCount: number;
 }
 
-const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProductClick, onToggleFavorite, favorites, theme, onShopClick }) => {
+const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProductClick, onToggleFavorite, favorites, theme, onShopClick, onCartClick, cartCount }) => {
     // Filter products for different sections using live products list
-    const auctionProduct = products.find(p => p.id === 13) || products[0];
-    const liveVaultProducts = products.slice(0, 10);
-    const grailProducts = products.filter(p => p.category === 'Special Collections' || p.price > 100).slice(0, 6);
+    // Higher-end selection logic for diverse TCG variety
+    const auctionProduct = products.find(p => p.id === 36) || products[0];
+    const liveVaultProducts = products.filter(p => p.badge === 'HOT' || p.badge === 'NEW').slice(0, 15);
+    const grailProducts = products.filter(p => p.badge === 'GRAIL' || p.badge === 'PSA 10 GEM MINT' || p.price >= 300).sort((a, b) => b.price - a.price);
+    const trendingBoosters = products.filter(p => p.category === 'booster').slice(0, 10);
 
     const isDark = theme === 'dark';
 
     return (
-        <div className={`flex-1 flex flex-col w-full pb-24 font-['Plus_Jakarta_Sans',sans-serif] transition-colors duration-500 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900'}`}>
-            <div className="max-w-7xl mx-auto w-full px-4 md:px-8">
-                {/* 0. LET'S SHOP CTA */}
-                <div className="pt-8 pb-4">
+        <div className={`flex-1 flex flex-col w-full pb-24 font-['Plus_Jakarta_Sans',sans-serif] transition-colors duration-500 ${isDark ? 'bg-[#050505] text-slate-100' : 'bg-[#f8f6f5] text-slate-900'}`}>
+            {/* VARIANT 3 USER HEADER */}
+            <header className={`sticky top-0 z-50 flex items-center justify-between px-4 py-3 backdrop-blur-md border-b transition-colors ${isDark ? 'bg-[#050505]/80 border-white/5' : 'bg-white/80 border-gray-100'}`}>
+                <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>The Vault</span>
+                        <span className="text-sm font-black leading-none uppercase tracking-tighter italic">Chris TCG</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
                     <button
-                        onClick={onShopClick}
-                        className={`w-full group relative overflow-hidden rounded-3xl p-6 transition-all active:scale-[0.98] border shadow-2xl ${isDark ? 'bg-[#121212] border-white/5 hover:border-blue-500/30' : 'bg-white border-gray-100 hover:border-blue-500/30'}`}
+                        onClick={onCartClick}
+                        className={`p-2.5 rounded-xl transition-all active:scale-95 group relative ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}
                     >
-                        <div className="flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                                    <ShoppingBag className="w-7 h-7 text-white" />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className={`text-xl font-black uppercase tracking-tighter italic ${isDark ? 'text-white' : 'text-slate-900'}`}>Let's Shop</h3>
-                                    <p className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Explore 24+ Premium Booster Boxes</p>
-                                </div>
-                            </div>
-                            <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${isDark ? 'border-white/10 group-hover:bg-blue-600 group-hover:border-blue-600' : 'border-gray-200 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white'}`}>
-                                <ArrowRight className="w-6 h-6" />
-                            </div>
-                        </div>
-                        {/* Shimmer Effect */}
-                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"></div>
+                        <ShoppingBag className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-slate-700'} group-hover:text-blue-500`} />
+                        {cartCount > 0 && (
+                            <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[8px] font-bold text-white border-2 border-white">
+                                {cartCount}
+                            </span>
+                        )}
                     </button>
                 </div>
+            </header>
 
-                {/* 1. AUCTION HERO */}
-                <section className="pt-6 mb-8 lg:mb-12">
+            <div className="max-w-7xl mx-auto w-full px-4 md:px-8">
+                {/* VARIANT 2 FEATURED DROP (REPLACING OLD HERO) */}
+                <section className="pt-6 mb-8">
                     <div
                         onClick={() => onProductClick(auctionProduct)}
-                        className={`relative rounded-[2rem] overflow-hidden group cursor-pointer border transition-all hover:-translate-y-1 duration-700 ${isDark ? 'bg-slate-900 border-white/10 shadow-[0_0_40px_rgba(255,62,62,0.15)] hover:shadow-[0_0_60px_rgba(255,62,62,0.25)]' : 'bg-gray-50 border-gray-200 shadow-xl'}`}
+                        className={`display-box rounded-3xl overflow-hidden group cursor-pointer relative transition-all hover:-translate-y-1 duration-500 shadow-2xl ${isDark ? 'shadow-[#ff3e3e]/10 hover:shadow-[#ff3e3e]/20' : 'shadow-blue-500/10'}`}
                     >
-                        <div className={`absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-transparent ${isDark ? 'via-black/20 to-black/90' : 'via-white/20 to-white/90'}`}></div>
-                        <div className={`w-full aspect-[4/3] md:aspect-[21/9] relative overflow-hidden ${isDark ? 'bg-black/40' : 'bg-white'}`}>
+                        {/* Neon Border Gradient (Simulated via CSS classes below) */}
+                        <div className={`absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-transparent ${isDark ? 'via-transparent to-black/90' : 'via-transparent to-black/60'}`}></div>
+
+                        <div className="w-full aspect-[4/3] md:aspect-[21/9] relative overflow-hidden bg-black/20">
                             <img
                                 src={auctionProduct.image}
-                                alt="Hero Auction"
-                                className="w-full h-full object-contain md:object-cover transition-transform duration-1000 group-hover:scale-105"
+                                alt="Featured Drop"
+                                className="w-full h-full object-contain md:object-cover transition-transform duration-1000 group-hover:scale-110"
                             />
-                            <div className="absolute inset-0 bg-red-500/5 mix-blend-overlay"></div>
+                            {/* Glass Tag */}
+                            <div className="absolute top-4 left-4 z-20">
+                                <span className="glass-tag px-3 py-1.5 text-[10px] md:text-xs font-black tracking-widest uppercase text-white rounded-lg shadow-lg flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-[#ff3e3e] rounded-full animate-pulse"></span>
+                                    Featured Drop
+                                </span>
+                            </div>
                         </div>
 
-                        <div className="absolute top-6 left-6 z-20">
-                            <span className={`backdrop-blur-md border px-4 py-2 text-[10px] md:text-xs font-bold tracking-widest uppercase rounded-xl flex items-center gap-2 ${isDark ? 'bg-black/60 border-white/10 text-white' : 'bg-white/80 border-gray-200 text-slate-900'}`}>
-                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_#ef4444]"></span>
-                                Live Auction
-                            </span>
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                            <div className="max-w-2xl">
-                                <h2 className={`text-3xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    {auctionProduct.name.split(' ')[0]}<br />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3e3e] via-orange-500 to-yellow-500">
-                                        {auctionProduct.name.split(' ').slice(1).join(' ')}
+                        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-10 z-20 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                            <div>
+                                <h2 className="text-3xl md:text-5xl font-black leading-none text-white drop-shadow-lg tracking-tighter">
+                                    {auctionProduct.name.split(' ').slice(0, 2).join(' ').toUpperCase()}<br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3e3e] to-orange-400">
+                                        {auctionProduct.name.split(' ').slice(2).join(' ').toUpperCase() || 'COLLECTION'}
                                     </span>
                                 </h2>
-                                <p className={`mt-4 text-sm md:text-lg max-w-lg hidden md:block leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500 font-medium'}`}>
-                                    Participate in the ultimate TCG showdown. Bid now on our most exclusive vault piece of the season.
-                                </p>
+                                <div className="flex items-center gap-4 mt-2">
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 text-white border border-white/20 backdrop-blur-md">{auctionProduct.badge || 'ELITE PIECE'}</span>
+                                    <span className="text-xs text-white/60 font-medium">{auctionProduct.category.toUpperCase()} Vault Piece</span>
+                                </div>
                             </div>
-                            <div className={`flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 backdrop-blur-xl p-6 rounded-2xl border ${isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-white/60 border-gray-200 text-slate-900'}`}>
-                                <div className="text-left md:text-right">
-                                    <p className="text-slate-400 text-[10px] font-medium uppercase tracking-widest mb-1">Current High Bid</p>
-                                    <p className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>${(auctionProduct.price + 100).toLocaleString()}</p>
+                            <div className="flex items-center gap-4">
+                                <div className="text-left md:text-right hidden sm:block">
+                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Current Value</p>
+                                    <p className="text-2xl font-black text-white">${auctionProduct.price.toLocaleString()}</p>
                                 </div>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onAddToCart(auctionProduct);
                                     }}
-                                    className={`px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-xl active:scale-95 whitespace-nowrap ${isDark ? 'bg-white text-black hover:bg-[#ff3e3e] hover:text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                    className="bg-white text-black px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-[#ff3e3e] hover:text-white transition-all shadow-white/20 shadow-xl"
                                 >
-                                    Bid Now
+                                    Buy Now
                                 </button>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 1.5 MARKET TICKER */}
-                <section className={`border-y py-4 mb-12 -mx-4 md:-mx-8 overflow-hidden ${isDark ? 'border-white/5 bg-white/[0.01]' : 'border-gray-100 bg-gray-50'}`}>
-                    <div className="flex animate-marquee whitespace-nowrap gap-12 text-xs font-bold tracking-widest uppercase italic text-slate-500">
-                        {[1, 2, 3, 4].map(i => (
+                {/* CATEGORY QUICK-NAV (Variant 2 Style) */}
+                <section className="mb-8 overflow-x-auto no-scrollbar -mx-4 px-4 md:-mx-0 md:px-0">
+                    <div className="flex gap-3 pb-2">
+                        {['🔥 Trending', 'Pokémon', 'MTG', 'Digimon', 'Vault Grails'].map((cat, idx) => (
+                            <button
+                                key={cat}
+                                className={`flex-shrink-0 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${idx === 0
+                                    ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+                                    : (isDark ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' : 'bg-white border border-gray-100 text-slate-600 hover:bg-gray-50 shadow-sm')
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 1.5 MARKET TICKER (Neon Update) */}
+                <section className={`py-4 mb-10 -mx-4 md:-mx-8 overflow-hidden border-y ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-gray-100 bg-gray-50'}`}>
+                    <div className="flex animate-marquee whitespace-nowrap gap-12 text-[10px] font-black tracking-widest uppercase italic">
+                        {[1, 2, 3].map(i => (
                             <React.Fragment key={i}>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-green-500">●</span>
-                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Charizard 1st Ed</span> sold <span className="text-[#ff3e3e]">$12,400</span>
+                                    <span className="w-1.5 h-1.5 bg-[#ff3e3e] rounded-full shadow-[0_0_8px_#ff3e3e]"></span>
+                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Charizard 1st Ed</span>
+                                    <span className="text-slate-500">last sold</span>
+                                    <span className="text-[#ff3e3e] font-black">$12,400</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-green-500">●</span>
-                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Lugia PSA 10</span> sold <span className="text-[#ff3e3e]">$3,200</span>
+                                    <span className="w-1.5 h-1.5 bg-[#00f0ff] rounded-full shadow-[0_0_8px_#00f0ff]"></span>
+                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Lugia PSA 10</span>
+                                    <span className="text-slate-500">last sold</span>
+                                    <span className="text-[#00f0ff] font-black">$3,200</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-green-500">●</span>
-                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Surging Sparks Box</span> sold <span className="text-[#ff3e3e]">$220</span>
+                                    <span className="w-1.5 h-1.5 bg-[#7c3aed] rounded-full shadow-[0_0_8px_#7c3aed]"></span>
+                                    <span className={isDark ? 'text-white' : 'text-slate-900'}>Surging Sparks</span>
+                                    <span className="text-slate-500">last sold</span>
+                                    <span className="text-[#7c3aed] font-black">$220</span>
                                 </div>
                             </React.Fragment>
                         ))}
                     </div>
                 </section>
 
-                {/* 2. LIVE VAULT SCROLL */}
+                {/* TRENDING BOOSTERS SECTION (Variant 1 style) */}
+                <section className="mb-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Trending Boosters</h2>
+                        <button className="text-sm font-semibold text-[#ff3e3e]">See All</button>
+                    </div>
+                    <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 md:-mx-0 md:px-0">
+                        {trendingBoosters.map(product => (
+                            <div
+                                key={product.id}
+                                onClick={() => onProductClick(product)}
+                                className={`snap-start relative flex min-w-[280px] flex-col overflow-hidden rounded-[2rem] shadow-sm transition-transform hover:scale-[1.02] cursor-pointer ${isDark ? 'bg-white/5' : 'bg-white'}`}
+                            >
+                                <div className="relative h-44 w-full overflow-hidden">
+                                    <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
+                                    {product.badge && (
+                                        <div className="absolute top-4 left-4 rounded-full bg-[#ff3e3e] px-3 py-1 text-[10px] font-bold text-white shadow-lg uppercase tracking-wider">
+                                            {product.badge}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1 p-5">
+                                    <h3 className="text-lg font-bold truncate uppercase tracking-tighter">{product.name}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xl font-black text-[#ff3e3e]">${product.price.toLocaleString()}</span>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black hover:bg-[#ff3e3e] hover:text-white transition-colors shadow-lg"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 2. LIVE VAULT SCROLL (Variant 3 Style) */}
                 <section className="mb-12">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <span className="relative flex h-3 w-3">
-                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isDark ? 'bg-[#f45925]' : 'bg-blue-500'}`}></span>
-                                <span className={`relative inline-flex rounded-full h-3 w-3 ${isDark ? 'bg-[#f45925]' : 'bg-blue-600'}`}></span>
+                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isDark ? 'bg-[#ff3e3e]' : 'bg-blue-500'}`}></span>
+                                <span className={`relative inline-flex rounded-full h-3 w-3 ${isDark ? 'bg-[#ff3e3e]' : 'bg-blue-600'}`}></span>
                             </span>
-                            <h2 className={`text-2xl font-black tracking-tight uppercase italic ${isDark ? 'text-white' : 'text-slate-900'}`}>Live Vault</h2>
+                            <h2 className={`text-xl font-black tracking-tight uppercase italic ${isDark ? 'text-white' : 'text-slate-900'}`}>Live Vault</h2>
                         </div>
-                        <button className={`text-xs font-black uppercase tracking-widest hover:underline ${isDark ? 'text-[#f45925]' : 'text-blue-600'}`}>See All Activity</button>
+                        <button className={`text-[10px] font-black uppercase tracking-widest hover:underline ${isDark ? 'text-[#ff3e3e]' : 'text-blue-600'}`}>View All</button>
                     </div>
 
                     <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 no-scrollbar items-center -mx-4 px-4 md:-mx-0 md:px-0">
@@ -143,39 +208,34 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                             <div
                                 key={product.id}
                                 onClick={() => onProductClick(product)}
-                                className={`relative flex-shrink-0 w-40 md:w-56 overflow-hidden rounded-2xl group border active:scale-95 transition-all shadow-lg ${isDark ? 'bg-[#121212] border-white/5 hover:border-[#f45925]/30' : 'bg-white border-gray-100 hover:border-blue-500/30'}`}
+                                className={`display-box relative flex-shrink-0 w-36 md:w-52 overflow-hidden rounded-2xl group active:scale-95 transition-all shadow-xl ${isDark ? 'hover:border-[#ff3e3e]/30' : 'bg-white border-gray-100'}`}
                             >
-                                <div className="aspect-[3/4] w-full relative">
-                                    <img src={product.image} className="w-full h-full object-contain p-4 group-hover:scale-105 transition-all duration-500" alt={product.name} />
-                                    <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-black via-black/20' : 'from-white via-transparent'}`}></div>
+                                <div className="aspect-[3/4] w-full relative bg-surface-dark overflow-hidden">
+                                    <img src={product.image} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-all duration-700" alt={product.name} />
+                                    <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-black/90 via-black/20' : 'from-black/60 via-transparent'}`}></div>
                                 </div>
-                                <div className="absolute top-3 right-3 flex flex-col gap-2">
-                                    <div className={`backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-black border uppercase tracking-tighter ${isDark ? 'bg-black/60 border-white/10 text-white' : 'bg-white/80 border-gray-200 text-slate-800'}`}>
-                                        {product.category.split(' ')[0]}
-                                    </div>
+                                <div className="absolute top-2 left-2 z-20">
+                                    <span className="glass-tag px-2 py-0.5 rounded text-[8px] font-black text-white uppercase tracking-tighter shadow-lg">
+                                        {Math.floor(Math.random() * 10)}:{Math.floor(Math.random() * 60).toString().padStart(2, '0')}
+                                    </span>
+                                </div>
+                                <div className="absolute top-2 right-2 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onToggleFavorite(product);
                                         }}
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 transition-colors ${favorites.includes(product.id) ? 'bg-red-500 border-red-500' : 'bg-black/40 hover:bg-white/20'}`}
+                                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${favorites.includes(product.id) ? 'bg-[#ff3e3e] border-[#ff3e3e]' : 'bg-black/40 border-white/10 hover:bg-white/20'}`}
                                     >
-                                        <Heart className={`w-4 h-4 text-white ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
+                                        <Heart className={`w-3.5 h-3.5 text-white ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
                                     </button>
                                 </div>
-                                <div className="absolute bottom-4 left-4 right-4">
-                                    <p className={`truncate text-sm font-bold mb-1 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{product.name}</p>
+                                <div className="absolute bottom-3 left-3 right-3 z-20">
+                                    <p className="truncate text-[10px] font-bold text-slate-300 mb-0.5 uppercase tracking-tighter">{product.name}</p>
                                     <div className="flex items-center justify-between">
-                                        <p className={`text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>${product.price.toLocaleString()}</p>
+                                        <p className="text-sm font-black text-white tracking-tight">${product.price.toLocaleString()}</p>
                                         {product.stock > 0 && product.stock <= 5 && (
-                                            <span className="text-[9px] font-black text-[#f45925] uppercase tracking-tighter animate-pulse">
-                                                Only {product.stock} left
-                                            </span>
-                                        )}
-                                        {product.stock === 0 && (
-                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
-                                                Sold Out
-                                            </span>
+                                            <span className="text-[8px] font-black text-[#ff3e3e] uppercase animate-pulse">Low</span>
                                         )}
                                     </div>
                                 </div>
@@ -184,34 +244,38 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                     </div>
                 </section>
 
-                {/* 3. MARKET SHOWCASE GRID */}
+                {/* 3. MARKET SHOWCASE (Variant 2 Grid) */}
                 <section className="mb-16">
-                    <h2 className={`text-2xl font-black mb-8 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        <span className="w-1.5 h-8 bg-gradient-to-b from-[#ff3e3e] to-orange-500 rounded-full"></span>
+                    <h2 className={`text-xl font-black mb-6 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        <span className={`w-1.5 h-6 rounded-full ${isDark ? 'bg-gradient-to-b from-[#7c3aed] to-purple-600' : 'bg-blue-600'}`}></span>
                         MARKET SHOWCASE
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                        {/* Featured Large */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                        {/* Featured Large Case */}
                         {grailProducts.length > 0 && (
                             <div
                                 onClick={() => onProductClick(grailProducts[0])}
-                                className={`col-span-2 row-span-1 md:row-span-2 relative aspect-square md:aspect-auto rounded-3xl overflow-hidden group border shadow-2xl cursor-pointer ${isDark ? 'border-white/10' : 'border-gray-100'}`}
+                                className={`display-box col-span-2 row-span-1 md:row-span-2 relative aspect-[21/9] md:aspect-auto rounded-3xl overflow-hidden group cursor-pointer transition-all ${isDark ? 'hover:border-[#7c3aed]/50' : 'border-gray-100'}`}
                             >
-                                <img src={grailProducts[0].image} className="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-1000" alt="Grail" />
-                                <div className={`absolute inset-0 bg-gradient-to-t opacity-90 ${isDark ? 'from-black via-black/10' : 'from-gray-100 via-transparent'}`}></div>
-                                <div className="absolute top-6 left-6 bg-purple-600 px-4 py-1.5 rounded-xl text-[10px] font-black text-white uppercase tracking-widest shadow-2xl animate-pulse">
-                                    High End Grail
+                                <div className="absolute top-3 left-3 z-20">
+                                    <span className="glass-tag px-2 py-1 text-[10px] font-black uppercase text-purple-300 rounded-lg border-purple-500/30">
+                                        ULTRA GRAIL
+                                    </span>
                                 </div>
-                                <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+                                <div className="w-full h-full relative overflow-hidden bg-black/40">
+                                    <img src={grailProducts[0].image} className="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-1000" alt="Grail" />
+                                    <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-black/90 via-black/20 to-transparent' : 'from-black/70 via-transparent'}`}></div>
+                                </div>
+                                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end z-20">
                                     <div>
-                                        <h3 className={`text-xl md:text-2xl font-black mb-1 uppercase tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{grailProducts[0].name}</h3>
-                                        <p className="text-xl text-purple-500 font-black">${grailProducts[0].price.toLocaleString()}</p>
+                                        <h3 className="text-base md:text-lg font-black text-white leading-tight mb-1 uppercase tracking-tight">{grailProducts[0].name}</h3>
+                                        <p className="text-lg text-[#7c3aed] font-black drop-shadow-[0_0_8px_rgba(124,58,237,0.6)]">${grailProducts[0].price.toLocaleString()}</p>
                                     </div>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onAddToCart(grailProducts[0]); }}
-                                        className={`p-4 backdrop-blur-xl rounded-2xl border hover:bg-purple-600 hover:text-white transition-all active:scale-90 shadow-2xl ${isDark ? 'bg-white/10 border-white/20' : 'bg-white/80 border-gray-200 text-slate-900'}`}
+                                        className={`w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-md transition-all border ${isDark ? 'bg-white/10 border-white/20 hover:bg-[#7c3aed]' : 'bg-blue-600 border-blue-600 text-white'}`}
                                     >
-                                        <Plus className="w-6 h-6" />
+                                        <Plus className="w-5 h-5 text-white" />
                                     </button>
                                 </div>
                             </div>
@@ -221,36 +285,52 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                             <div
                                 key={product.id}
                                 onClick={() => onProductClick(product)}
-                                className={`relative aspect-square rounded-3xl overflow-hidden group border cursor-pointer hover:border-blue-500/30 transition-all ${isDark ? 'bg-[#121212] border-white/5' : 'bg-gray-50 border-gray-100'}`}
+                                className={`display-box relative flex flex-col rounded-2xl overflow-hidden group cursor-pointer transition-all ${isDark ? 'hover:border-[#00f0ff]/50' : 'bg-white shadow-sm border-gray-100'}`}
                             >
-                                <img src={product.image} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-all duration-700" alt={product.name} />
-                                <div className={`absolute inset-0 bg-gradient-to-t opacity-60 ${isDark ? 'from-black/90 via-black/20' : 'from-white/90 via-transparent'}`}></div>
-                                <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end">
-                                    <div className="flex-1 min-w-0 pr-2">
-                                        <p className={`text-xs font-black truncate uppercase mb-1 ${isDark ? 'text-white' : 'text-slate-800'}`}>{product.name}</p>
-                                        <p className={`text-sm font-black ${isDark ? 'text-orange-500' : 'text-blue-600'}`}>${product.price}</p>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                                        className={`w-8 h-8 rounded-full backdrop-blur-md flex items-center justify-center border hover:bg-blue-600 hover:text-white transition-colors ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/80 border-gray-200 text-slate-500'}`}
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                    </button>
+                                <div className="w-full aspect-[4/5] overflow-hidden bg-black/10 relative">
+                                    <img src={product.image} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt={product.name} />
+                                    {product.badge && (
+                                        <div className="absolute top-2 left-2 z-20">
+                                            <span className="glass-tag px-2 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-widest text-[#00f0ff] border-[#00f0ff]/20">
+                                                {product.badge}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
+                                <div className="p-4 relative z-20 flex-1 flex flex-col justify-between">
+                                    <h3 className={`text-[11px] font-black leading-tight mb-2 uppercase tracking-tighter ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{product.name}</h3>
+                                    <div className="flex justify-between items-center">
+                                        <p className={`text-sm font-black ${isDark ? 'text-[#00f0ff] drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]' : 'text-blue-600'}`}>${product.price ? product.price.toLocaleString() : '0'}</p>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isDark ? 'bg-white/5 border border-white/10 hover:bg-[#00f0ff] hover:text-black' : 'bg-blue-600 text-white shadow-md'}`}
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                                {product.stock === 0 && (
+                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-30 flex items-center justify-center">
+                                        <span className="px-3 py-1 rounded-full bg-red-500 text-white text-[8px] font-black uppercase tracking-widest rotate-[-12deg]">Sold Out</span>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
                 </section>
 
-                {/* 4. COLLECTOR'S SHELF */}
+                {/* 4. COLLECTOR'S SHELF (Variant 3 Vault Shelf) */}
                 <section className="pb-20">
-                    <div className={`px-8 py-6 mb-10 rounded-[2rem] border shadow-2xl relative overflow-hidden group ${isDark ? 'border-white/5 bg-gradient-to-br from-[#1a0f0d] to-[#2e1e1a]' : 'border-gray-100 bg-gradient-to-br from-blue-50 to-indigo-50'}`}>
-                        <div className={`absolute top-0 right-0 w-64 h-64 blur-[100px] rounded-full group-hover:opacity-60 transition-colors ${isDark ? 'bg-orange-500/10' : 'bg-blue-500/20'}`}></div>
-                        <h2 className={`text-2xl md:text-3xl font-black flex items-center gap-4 relative z-10 uppercase italic ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            <Package className={`w-8 h-8 ${isDark ? 'text-orange-500' : 'text-blue-600'}`} />
-                            COLLECTOR'S SHELF
+                    <div className="flex items-center justify-between mb-8 pr-4">
+                        <h2 className={`text-xl font-black tracking-tight flex items-center gap-3 uppercase italic ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <Package className={`w-6 h-6 ${isDark ? 'text-[#ff3e3e]' : 'text-blue-600'}`} />
+                            Collector's Shelf
                         </h2>
-                        <p className={`mt-2 text-sm md:text-base font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Curated high-prestige pieces for serious vault collectors.</p>
+                        <div className="flex gap-2">
+                            <button className={`p-2 rounded-lg border transition-colors ${isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-gray-100 border-gray-200 text-slate-500'}`}>
+                                <TrendingUp className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -258,38 +338,47 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                             <div
                                 key={product.id}
                                 onClick={() => onProductClick(product)}
-                                className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] border-[6px] shadow-2xl cursor-pointer active:scale-[0.98] transition-all ${isDark ? 'bg-[#2e1e1a] border-[#3d2b25] hover:border-orange-500/40' : 'bg-white border-blue-50 hover:border-blue-500/40'}`}
+                                className={`display-box group relative flex flex-col overflow-hidden rounded-[2rem] border-[6px] shadow-vault transition-all active:scale-[0.98] cursor-pointer ${isDark ? 'border-[#3d2b25] hover:border-[#ff3e3e]/40' : 'bg-white border-blue-50'}`}
                             >
-                                <div className={`relative h-64 md:h-72 w-full overflow-hidden ${isDark ? 'bg-[#1a0f0d]' : 'bg-gray-50'}`}>
+                                <div className={`relative h-64 w-full shadow-inner-glow overflow-hidden ${isDark ? 'bg-[#1a0f0d]' : 'bg-slate-50'}`}>
                                     <img src={product.image} className="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-1000" alt={product.name} />
-                                    <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent ${isDark ? 'to-black/80' : 'to-transparent'}`}></div>
-                                    <div className={`absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-xl border ${isDark ? 'bg-black/80 border-white/10' : 'bg-white/80 border-gray-200'}`}>
-                                        <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-                                        <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>Authenticated</span>
+                                    <div className="absolute top-4 left-0 w-full flex justify-between px-4 z-20">
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 shadow-lg">
+                                            <span className="material-symbols-outlined text-green-500 text-[14px]">verified</span>
+                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">AUTHENTIC</span>
+                                        </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onToggleFavorite(product);
+                                            }}
+                                            className={`flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all border ${favorites.includes(product.id) ? 'bg-[#ff3e3e] border-[#ff3e3e] scale-110' : 'bg-black/60 border-white/10 hover:bg-white/20'}`}
+                                        >
+                                            <Heart className={`w-5 h-5 text-white ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onToggleFavorite(product);
-                                        }}
-                                        className={`absolute top-6 right-6 w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border transition-all ${favorites.includes(product.id) ? 'bg-red-500 border-red-500 scale-110 text-white' : isDark ? 'bg-black/60 border-white/10 text-white' : 'bg-white/80 border-gray-200 text-slate-400'}`}
-                                    >
-                                        <Heart className={`w-6 h-6 ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
-                                    </button>
+                                    <div className={`absolute inset-0 bg-gradient-to-b from-black/20 via-transparent ${isDark ? 'to-black/80' : 'to-black/60'} pointer-events-none`}></div>
                                 </div>
 
-                                <div className={`p-8 border-t-2 flex justify-between items-center transition-colors ${isDark ? 'bg-[#261815] border-[#3d2b25] group-hover:bg-[#2d1d1a]' : 'bg-white border-gray-50 group-hover:bg-gray-50'}`}>
-                                    <div>
-                                        <h3 className={`text-lg md:text-xl font-black line-clamp-1 uppercase tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{product.name}</h3>
-                                        <div className="flex items-center gap-3 mt-2">
-                                            <span className="text-[10px] md:text-xs font-black text-green-400 uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded-lg border border-green-500/20">MINT 10</span>
-                                            <div className={`w-1 h-1 rounded-full ${isDark ? 'bg-white/20' : 'bg-slate-200'}`}></div>
-                                            <span className="text-[10px] md:text-xs text-slate-400 uppercase font-black tracking-widest">Sealed Case</span>
+                                <div className={`relative p-6 flex flex-col gap-3 border-t-2 transition-colors ${isDark ? 'bg-[#261815] border-[#3d2b25]' : 'bg-white border-gray-100'}`}>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-black text-white leading-tight uppercase tracking-tight">{product.name}</h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-green-900/40 text-green-400 border border-green-800/50">MINT</span>
+                                                <span className="text-xs text-slate-400 font-medium tracking-tight">Vault Case</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right pl-2">
+                                            <span className="block text-2xl font-black text-[#ff3e3e] tracking-tighter">${product.price.toLocaleString()}</span>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className={`text-2xl md:text-3xl font-black tracking-tighter drop-shadow-2xl ${isDark ? 'text-[#f45925]' : 'text-blue-600'}`}>${product.price.toLocaleString()}</p>
-                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                                        className="w-full py-3 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-[#ff3e3e] hover:text-white active:scale-[0.98] transition-all shadow-[0_4px_0_rgb(200,200,200)] active:shadow-none active:translate-y-1 flex items-center justify-center gap-2 mt-2"
+                                    >
+                                        Add to Vault
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -298,6 +387,46 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
             </div>
 
             <style>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                .display-box {
+                    background: ${isDark ? 'linear-gradient(145deg, rgba(20,20,20,0.9) 0%, rgba(10,10,10,0.95) 100%)' : 'white'};
+                    border: 1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};
+                    position: relative;
+                    overflow: hidden;
+                }
+                .display-box::before {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0; height: 1px;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    z-index: 10;
+                }
+                .display-box::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0; left: 0; right: 0; height: 60%;
+                    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+                    z-index: 1;
+                    pointer-events: none;
+                }
+                .glass-tag {
+                    background: rgba(0,0,0,0.4);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    color: white;
+                }
+                .shadow-vault {
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5), inset 0 -4px 6px -1px rgba(255, 255, 255, 0.05);
+                }
+                .shadow-inner-glow {
+                    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+                }
                 @keyframes marquee {
                     0% { transform: translateX(0); }
                     100% { transform: translateX(-50%); }
@@ -306,13 +435,6 @@ const HighEndHome: React.FC<HighEndHomeProps> = ({ products, onAddToCart, onProd
                     animation: marquee 30s linear infinite;
                     display: flex;
                     width: max-content;
-                }
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .no-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
                 }
             `}</style>
         </div>

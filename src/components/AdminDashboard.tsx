@@ -42,9 +42,9 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
     const handleUpdateNickname = async (sessionId: string, newName: string) => {
         const { error } = await supabase.from('visitors').update({ nickname: newName }).eq('session_id', sessionId);
         if (error) {
-            showToast('Error updating nickname', 'info');
+            showToast('Action failed: Could not update nickname', 'info');
         } else {
-            showToast('Nickname updated');
+            showToast('Nickname updated successfully');
             setVisitors(prev => prev.map(v => v.session_id === sessionId ? { ...v, nickname: newName } : v));
             setEditingNickname(null);
         }
@@ -122,7 +122,7 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                     } else {
                         setUnreadCount(prev => prev + 1);
                         setSessionUnread(prev => ({ ...prev, [msg.session_id]: (prev[msg.session_id] || 0) + 1 }));
-                        showToast(`💬 New message from ${msg.session_id.slice(0, 8)}`, 'info');
+                        showToast('New message received from concierge chat', 'info');
                         new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => { });
                     }
                 }
@@ -228,6 +228,34 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
         }
     }, [activeTab]);
 
+    const handleSyncLocalProducts = async () => {
+        if (!window.confirm('This will append all local mock products to the database. Continue?')) return;
+
+        showToast('Synchronizing inventory with database...', 'info');
+        // Dynamic import to avoid circular dependency if products.ts imports types which might lead back here
+        const { PRODUCTS } = await import('../data/products');
+
+        const { error } = await supabase.from('products').upsert(
+            PRODUCTS.map(p => ({
+                name: p.name,
+                price: p.price,
+                category: p.category,
+                image: p.image,
+                description: p.description,
+                stock: p.stock,
+                badge: p.badge
+            })),
+            { onConflict: 'name' }
+        );
+
+        if (error) {
+            console.error('Sync error:', error);
+            showToast('Synchronization failed: ' + error.message, 'info');
+        } else {
+            showToast('Database successfully synced with inventory!', 'success');
+        }
+    };
+
     const metrics = useMemo(() => {
         const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
         return [
@@ -254,41 +282,61 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
 
     return (
         <div className={`min-h-screen font-sans pb-24 transition-colors ${isDark ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`}>
-            <header className={`sticky top-0 z-40 backdrop-blur-xl border-b px-4 py-4 ${isDark ? 'bg-slate-950/80 border-white/5' : 'bg-white/80 border-gray-200'}`}>
-                <div className="flex items-center justify-between max-w-7xl mx-auto">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-blue-600/10 p-2.5 rounded-2xl">
-                            <LayoutDashboard className="w-6 h-6 text-blue-600" />
+            <header className={`sticky top-0 z-50 backdrop-blur-2xl border-b transition-all ${isDark ? 'bg-slate-950/80 border-white/5 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.5)]' : 'bg-white/80 border-gray-100 shadow-sm'}`}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between max-w-7xl mx-auto gap-4 md:gap-0">
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-blue-600 p-2.5 rounded-2xl shadow-lg shadow-blue-500/20">
+                                <LayoutDashboard className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-black italic tracking-tighter uppercase leading-none">ADMIN PANEL</h1>
+                                <p className="text-[10px] font-black text-blue-600/60 uppercase tracking-[0.2em] leading-none mt-1">Vault Command Center</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-black italic tracking-tighter uppercase">ADMIN PANEL</h1>
-                            <p className="text-[10px] font-black text-blue-600/60 uppercase tracking-widest leading-none">Vault Command Center</p>
-                        </div>
+                        {/* Mobile Exit Button (Visible only on mobile next to title) */}
+                        <button onClick={onClose} className="md:hidden px-5 py-2 rounded-xl bg-blue-600 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/30 active:scale-95 transition-all">
+                            Exit
+                        </button>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 md:py-0">
                         <button
                             onClick={async () => {
                                 const msg = prompt('Enter global notification message:');
                                 if (msg) {
                                     await supabase.from('notifications').insert([{ message: msg, type: 'info' }]);
-                                    showToast('Broadcast Sent', 'success');
+                                    showToast('Global announcement broadcasted successfully', 'success');
                                 }
                             }}
-                            className={`p-2.5 rounded-2xl border shadow-sm transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
+                            className={`flex-shrink-0 p-3 rounded-2xl border transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10 text-blue-400' : 'bg-white border-gray-100 hover:bg-gray-50 text-blue-600'}`}
                             title="Send Global Broadcast"
                         >
-                            <Radio className="w-5 h-5 text-blue-500" />
+                            <Radio className="w-5 h-5" />
+                        </button>
+
+                        <button
+                            onClick={handleSyncLocalProducts}
+                            className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-500 hover:bg-amber-500/20' : 'bg-amber-50 border-amber-100 text-amber-600 hover:bg-amber-100'}`}
+                            title="Sync Database with local PRODUCTS list"
+                        >
+                            <Plus className="w-4 h-4 rotate-45" />
+                            <span className="hidden sm:inline">Sync Mock Data</span>
+                            <span className="sm:hidden">Sync</span>
                         </button>
 
                         <button
                             onClick={onLock}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border ${isDark ? 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20' : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100'}`}
+                            className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border ${isDark ? 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20' : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100'}`}
                         >
                             <ShieldOff className="w-4 h-4" />
-                            Lock Vault
+                            <span className="hidden sm:inline">Lock Vault</span>
+                            <span className="sm:hidden">Lock</span>
                         </button>
-                        <button onClick={onClose} className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white font-black uppercase text-xs shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all">
-                            Exit
+
+                        {/* Desktop Exit Button */}
+                        <button onClick={onClose} className="hidden md:block px-8 py-3 rounded-2xl bg-blue-600 text-white font-black uppercase text-xs shadow-xl shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all">
+                            Exit Dashboard
                         </button>
                     </div>
                 </div>
@@ -296,25 +344,29 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
 
             <div className="max-w-7xl mx-auto p-4 md:p-8">
                 {/* Metrics */}
-                <div className="flex overflow-x-auto gap-4 pb-6 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 mb-4">
+                <div className="flex overflow-x-auto gap-6 pb-8 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 mb-6">
                     {metrics.map((m, i) => (
                         <motion.div
                             key={i}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className={`min-w-[200px] flex-1 p-6 rounded-[2rem] shadow-sm border relative overflow-hidden group ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100'}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
+                            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                            className={`min-w-[240px] flex-1 p-8 rounded-[2.5rem] shadow-xl border relative overflow-hidden group transition-shadow ${isDark ? 'bg-slate-900 border-white/5 shadow-black/40 hover:shadow-blue-500/10' : 'bg-white border-gray-100 shadow-slate-200/50 hover:shadow-blue-500/5'}`}
                         >
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`${m.color} p-3 rounded-2xl group-hover:scale-110 transition-transform`}>
+                            <div className="flex items-center justify-between mb-6">
+                                <div className={`${m.color} p-4 rounded-[1.25rem] shadow-inner group-hover:scale-110 transition-transform duration-500`}>
                                     <m.icon className="w-6 h-6" />
                                 </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-500">
-                                    {m.change}
-                                </span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                                        {m.change}
+                                    </span>
+                                </div>
                             </div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{m.label}</p>
-                            <h3 className="text-2xl font-black italic">{m.value}</h3>
+                            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.25em] mb-2">{m.label}</p>
+                            <h3 className="text-3xl font-black italic tracking-tighter">{m.value}</h3>
+                            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
                         </motion.div>
                     ))}
                 </div>
@@ -368,31 +420,51 @@ export default function AdminDashboard({ products, onAdd, onUpdate, onDelete, on
                                 <motion.div
                                     key={item.id}
                                     layout
-                                    className={`p-4 rounded-[2rem] border shadow-sm flex items-center gap-4 group transition-all ${isDark ? 'bg-slate-900 border-white/5 hover:border-blue-500/30' : 'bg-white border-gray-100 hover:border-blue-200'}`}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className={`p-5 rounded-[2rem] border shadow-sm flex items-center gap-5 group transition-all relative overflow-hidden ${isDark ? 'bg-slate-900 border-white/5 hover:border-blue-500/30 hover:bg-slate-800/50' : 'bg-white border-gray-100 hover:border-blue-200 hover:bg-blue-50/10'}`}
                                 >
-                                    <div className={`w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 ${isDark ? 'bg-black/40' : 'bg-gray-50'}`}>
-                                        <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500" />
+                                    <div className={`w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 relative ${isDark ? 'bg-black/40' : 'bg-gray-50'}`}>
+                                        <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-700" />
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="text-sm font-black italic truncate uppercase tracking-tight">{item.name}</h3>
+                                    <div className="flex-1 min-w-0 py-1">
+                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                            <h3 className="text-base font-black italic truncate uppercase tracking-tight leading-none">{item.name}</h3>
                                             {item.stock === 0 && (
-                                                <span className="px-2 py-0.5 rounded-full bg-red-500 text-[8px] font-black text-white uppercase tracking-tighter animate-pulse">
+                                                <span className="px-3 py-1 rounded-full bg-red-500 text-[8px] font-black text-white uppercase tracking-tighter animate-pulse shadow-lg shadow-red-500/20">
                                                     Out of Stock
                                                 </span>
                                             )}
                                             {item.stock > 0 && item.stock <= 5 && (
-                                                <span className="px-2 py-0.5 rounded-full bg-amber-500 text-[8px] font-black text-white uppercase tracking-tighter">
+                                                <span className="px-3 py-1 rounded-full bg-amber-500 text-[8px] font-black text-white uppercase tracking-tighter shadow-lg shadow-amber-500/20">
                                                     Low Stock: {item.stock}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-blue-600/60'}`}>{item.category}</p>
+                                        <div className="flex items-center gap-3">
+                                            <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? 'text-blue-400' : 'text-blue-600/60'}`}>{item.category}</p>
+                                            <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${item.price.toLocaleString()}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        <button onClick={() => { setIsAddingNew(false); setEditingProduct(item); }} className="p-3 rounded-xl bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"><Edit2 className="w-4 h-4" /></button>
-                                        <button onClick={() => onDelete(item.id)} className="p-3 rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                                    <div className="flex items-center gap-2 pr-2">
+                                        <button
+                                            onClick={() => { setIsAddingNew(false); setEditingProduct(item); }}
+                                            className="p-4 rounded-2xl bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
+                                            title="Edit Asset"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => onDelete(item.id)}
+                                            className="p-4 rounded-2xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300"
+                                            title="Delete Asset"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
+                                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </motion.div>
                             ))}
                         </div>

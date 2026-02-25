@@ -7,6 +7,7 @@ interface ChatInterfaceProps {
     onClose: () => void;
     theme: 'light' | 'dark';
     sessionId: string;
+    prefillMessage?: string;
 }
 
 interface Message {
@@ -18,7 +19,7 @@ interface Message {
     is_read?: boolean;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId, prefillMessage }) => {
     const isDark = theme === 'dark';
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -31,6 +32,50 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, theme, sessionId
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const hasSentPrefill = useRef(false);
+
+    useEffect(() => {
+        if (prefillMessage && !hasSentPrefill.current) {
+            hasSentPrefill.current = true;
+            const sendPrefill = async () => {
+                const text = prefillMessage;
+                // Optimistic update
+                const tempId = `temp-prefill-${Date.now()}`;
+                const optimisticMsg: Message = {
+                    id: tempId,
+                    text,
+                    sender: 'user',
+                    timestamp: new Date(),
+                    delivered: false,
+                    is_read: false
+                };
+                (optimisticMsg as any).optimistic = true;
+                setMessages(prev => [...prev, optimisticMsg]);
+
+                try {
+                    await supabase.from('visitors').upsert({
+                        session_id: sessionId,
+                        last_active: new Date().toISOString()
+                    }, { onConflict: 'session_id' });
+
+                    const { error } = await supabase
+                        .from('messages')
+                        .insert([{
+                            session_id: sessionId,
+                            text: text,
+                            sender: 'user'
+                        }]);
+
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Prefill send error:', error);
+                    setMessages(prev => prev.filter(m => m.id !== tempId));
+                }
+            };
+            // Small delay to ensure DB readiness or just to feel "natural"
+            setTimeout(sendPrefill, 500);
+        }
+    }, [prefillMessage, sessionId]);
 
     useEffect(() => {
         // Fetch existing messages

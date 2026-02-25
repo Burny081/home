@@ -10,8 +10,7 @@ const TCG_IDS = {
     obsidian: 501257,
     twilight: 543846,
     temporal: 536225,
-    stellarCrown: 557354,
-    op13: 628352
+    stellarCrown: 557354
 };
 
 const tcgImg = (id: number) => `https://product-images.tcgplayer.com/${id}/400w.jpg`;
@@ -43,21 +42,16 @@ export const POKEMART_ASSETS = {
     temporalForcesETB: "https://lh3.googleusercontent.com/aida-public/AB6AXuCr-0nF_DQaI41Jg9R8KvZoo8xQXu_gVCmroZxjNFCPJffcAugLRjdrnHpOdGm7i6ThE_69QIzu3k-eQ15GkEhueunnaLjV9yqAmN_Y_J32LE4tmaDWlthm1sQZIEmgpcfimz8nEnRbnqvhsP50tXgtvHmFy9VY2wmm3IEi2qq-Y_dc6QzRefSEl9wpnV3VLdwjR9Rs_UTPe9btCO3gMwcF_n2q023yn1fbZqw0zC0aMqxARZYw_IsrEqu_db_qq7mSGv-1cBwqmHY",
     charizardSirSingle: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_fcO04dRUib6ELASPyvmuyyVoVvgM4B75fdCJnbFM5z4ZTZXpc7QJNreYAI9fTKe203Of8TQ6FAscErbC85smSFjIWZU7fHVUcvAHaFLPbn4S4tbg3Lu4cPobn7MILCTou0E3wfFqyeMEvy7EjQmcDLFdYcUfRUwISf8psUEC-TyJeBx_VBN5FsGLdeSqysgNPmzXdDyVvhM0EOuX_3IQr3WwnvneYo2P6_Qwv3Dtko2_mM1VmL08rbxgwPVrlsQKzCIsn_iZqnk",
     pikachuIllustrator: "https://lh3.googleusercontent.com/aida-public/AB6AXuB0zNUwmRHpTOjokAWeJ2EHaQYJ-gz4AlOnGd862dus1bSpVvps0XwpV_tt9kBMSQdt4kdAP3FYblmEK7xrfjmf-rbcuHDMuk0MbgqCdH6K0HzHotngUJ3bhGYuRQdfY19G6M_VIcF2GzvicC5KdV-KpqbWl3SbxifGx2PjjrCfrZ_CzRyYPZd1CHRJ-eywqo9zy2eAiGmOD5bSXwYSExVIpjEYSNvwKmGw0BfPx46EUwomkhx4tsALNCF-EHYa_el12WQGZvDOllI",
-    phantasmalMegaCharizard: "https://lh3.googleusercontent.com/aida-public/AB6AXuARX7se7s5FZb0Yk08V-vpFvHFxPtigxSaLaBok9rNdj6etHNb16vis9FBKr8MeSSEB8j9FqLkZ5VVSdOOr12cq6j4JT1jF7MGSgvGnf_Unz_-cuSZ1pyjPgu-TPP9v9hi2FWERYyk79kJaM4m9vFKvMU9bs-fpkhmra7Ir3slycuI4MkrYbcRBBmhUJgtuAzftM0Zjg8076vSPXSr1OAX0xJdstsshrsbn4OAoAw8C40OiIjj4hdFRCCPm7BHik7ZCOIhUilF4_ek",
-    stellarCrownBox: "https://lh3.googleusercontent.com/aida-public/AB6AXuC-herAsRDosXz0yLoP55zbrJZSuihWZDfzGTou_bzX5IWj1U8KMm0EdClHiDhNhCHLMDj4tUk7Vi_e7exPvaFUhA-YAMF0xj1Nvo8PtAM7ozM5ZfrIhcPGg2KZL5bw04BhTqOO0mCZtSlXkcjp8bqWDLJnffBFhg8RcvdkXb_sy3vdw_wSLhyKkW9p92wqT-SJNGJ4tz4s6ghRVKchz4t6T7cq-iws58L69lCr0Kv1tfHUWAztEJiUJYZqrJFsOJVlZTlViP4k7yo",
-    jp151Booster: "https://lh3.googleusercontent.com/aida-public/AB6AXuAsO3NaOnTlugp27pdmV-LnrCEWaSctsz-NiSS73FUSTe42C-2V62UJpi_WPtrDRRHLy9PNk5kQ1hXJwAr1ESw0WYk8e06z9LaMAZy8nzZ1-XS7GtPT2ZzT3bEQXx_byUzDukwi1Ad8JKOKJmez2F6NAMddEVDAJne_0CSPUi8YdROj3xU3EuDYlo8IjPru1Ak8jVkl5Ffuf-TVD-VxKL9zGlkkVIvg60_Cv92qRgScBFjC7_4uXYXvj77QfGex1WGkL2czXdbAcsQ",
-    psa10Lugia: "https://lh3.googleusercontent.com/aida-public/AB6AXuCbTZy44VA58PSOiqKSP-oDKtthk0_EKY1XbUlwU_XQyXdi7gCvz3H7kK-QQJhK1mbBr363f873DUaPZaIOUsR8BZ5pPsHpcTRjwRf8asHU0S_8pJbBtPdWkJTXV8HtFl49Gv59Gvw58ApF3c-ZEaJNZkuoXEL76hm8NHWp2a7oCAHw5vZPFNHCXv4RWxGwL05QqaU0QsQq6qH1mEmcJLN2xxRC01W9ZinmX3zRaib6z_qu18I4PuF5tZjwzvQJkFT59x8ji8MNmUI",
-    avatarAsh: "https://lh3.googleusercontent.com/aida-public/AB6AXuBUx_Z9LGOeaJLa2spWa6h_O5qMBo2c1hNNg7ArGCIyk7-sh0Bq_H61VPrgXrkyC48z40SHwfftkyoIAv6Bcj9NbVvdfoeh9ACT9iAZNp4SfHzFvIhJKuk-0hMKCQXtAEYPedxhy0B8NLQhaINMA_mmsLg-9PN4yU7a5lC_4Q3hsRbYPMOU6_Ar362JN7Xu8e7RWfYBewcO55k_z_qT4-dncJ2mqEBEqH7XlzabgVMhJrjy-zOuUjt75vsiJHNU0_Bc2drQ8u1j2Bo",
-    baseSetBoosterUrgent: "https://lh3.googleusercontent.com/aida-public/AB6AXuDnCTD4vr_XhaApDt-8qQ5M4xlLh_CC0H3XiI2OiaZttYwVetg67xmqnK_FeL7eEfCCaY-Xd2MxE--FwJFjDCyBJr8aETOwJYTDhI-XKY6Nn9uWaFlf5P6oDOPgZEdjO-27UUJcfAfJUA9k302Kez1m_-Jlu1efq53QI9NtFHrurH-Jq7xWd_jRDnaZUPbWSCu8wH1kIc9qzA-hSj0HiDVlxYBamxYg9iLTeU3LQxjlZXV9xFPu1BGKMDsy8wCOTfJ90sKmVxH-ETc",
-    rebelClashBB: "https://lh3.googleusercontent.com/aida-public/AB6AXuB6Ncxy3lUMbKOq3bEy-iviIRuBtb3ur2NmWNGuBdsJwZpb7cLBmGP0wgdhamKfLBAfAEu8aCuBz1LQ8_XqX_NHfMboMMcZudf_sFeL4lfz576-yGyhiDLJimtCB5cR4fHs0CBQ-j2Rw9UJIX5mXcVLNIOgTc2WLcasMDGNGp9lEbhhjtlDm3t3DFg1QYLMOGYez5TID-EA43cW_HKhqj2FRocXheEkoeKxZkvxEzaQWg3bfkVvg51t0aRpErk1rBuRY3TUYzlHNzs",
-    twilightMasqueradeBB: "https://lh3.googleusercontent.com/aida-public/AB6AXuDXBBYHIOfGr7cfdwWth2TKNEWlgJa5rgrOjSZGB2zwlDwmbxnj_KIBpe2Z_4BvypH3_P7dfpQIEGseMFmW2lrj_KUiiWyH8SIRGjiSWDAyRO29_WeQfvt98rc3VnfOnQZVuN_-UjJxBMXY2ZIIsGZNuNgpGph2FTO6SZKsS-ERYt6Bbio-YePQ_TpUj7aVGDeXOQs3agqmTQzo8D2cimEoeoWS-fIrdOLyI0gD0OMwmJVly7zUU8D1bLueyed-OfV9CGS2a4zv7_g",
-    evolvingSkiesBooster: "https://lh3.googleusercontent.com/aida-public/AB6AXuBs496DuBknrF-vV11EzPLSWKIsUWZVyAC3YI-Jnll8oABTqR2TpVcCLr6MYSjF0S9G9tE-IzK1dX3Hr3BKqrS1XlblHHaGbGgKE5Q0B7wtj4t1DZ0dExpATXwjC2O7BL419UoWX_kBw6sGQN1HDiMws5CKNhB6KXG3DlWhgrUu_CyuI1nvyy1r-UW8OUcB3RH9zb3eg45IY6njlJ3hJv6EgtWsTMXTEdw8JUE6Qus1_10rzsp0yO8Up0-DWOJ77EPwdp61-89iAGs",
+    baseSetBooster: "https://lh3.googleusercontent.com/aida-public/AB6AXuDnCTD4vr_XhaApDt-8qQ5M4xlLh_CC0H3XiI2OiaZttYwVetg67xmqnK_FeL7eEfCCaY-Xd2MxE--FwJFjDCyBJr8aETOwJYTDhI-XKY6Nn9uWaFlf5P6oDOPgZEdjO-27UUJcfAfJUA9k302Kez1m_-Jlu1efq53QI9NtFHrurH-Jq7xWd_jRDnaZUPbWSCu8wH1kIc9qzA-hSj0HiDVlxYBamxYg9iLTeU3LQxjlZXV9xFPu1BGKMDsy8wCOTfJ90sKmVxH-ETc",
+    charizardVmax: "https://lh3.googleusercontent.com/aida-public/AB6AXuAX2mxJfoC0LB9kxJ8L0CjtT9ma-ncjwvin_0X2Jq2pGN-ATttTJWH6ltnfwSb76t4jy03vwyC7PD8HXws_Z6oxpGs2CGjoV5n-PviXQrfjZwV9m1o5Xyjky_xabtI-o7IUztRtMAQGcJ0enQgmb5-JqdVy-EVbsAdXLnCz7pTpJpfXruOcqkDPYTDF4dacc7zWldmvXrdpmPm61ZTsLYOewCMDliE44Pb6jTD0FlKkPyxPevVQ8sk7kCXiVcLjw8Exsj5YISdZ1MM",
     umbreonVMaxPSA: "https://lh3.googleusercontent.com/aida-public/AB6AXuBwmaZXaiypybQVEguHdT7gjLIU-tnoUMh5sDsHmv9OzYZV257vhGQh48eEzMHXlmHUWqqieS96o5GYNnFTi91mRN5kENb_5SOgyZHRoqJdtm3y2VTZnccZutuFQcO0P-iVNlx1oaTj0gQMm_KNFjJKbvODUXBWPL5oVCIV745dpbHUwALRPLfa4bur7jhYIE8sJLaEFOS4J1ZuAogVaCL3hXVyNG6tpmXR9Xaec7eCRI8YFkuMlDjWLuEhLUepeSVC0hyk9jTKguo",
-    fusionStrikeBB: "https://lh3.googleusercontent.com/aida-public/AB6AXuCCMxZjd9SskQf3zz3E7fttNq744911CstIT5jVoNs-uYLxz45l5oEGLgcPKFLUIww3SJQmqqZ3HHpjEMtNV97Ocw8WHWoq7X-PWmNoGcy64pB5gx5NboDarWxKnirXSxcxLACk8k_tUI22JUsjBqLAHmM7UQlUfQ7uyjEoGyYqqLYB0y4F6gad9EPnZy23Mt0s-s7cczE8Z0ZNtgNSA4KJtp5giLpfZ3oT6EpkIMj7xVaZ_6sdowYb3MlrI8ml3nLCI5y-ydOYAvg",
-    onePieceBooster: "https://lh3.googleusercontent.com/aida-public/AB6AXuAs4-wRSBccGQzN8vKWCIGAycsiuv585Ga3807aJXiQKkNsDGsc8K7zNz8Vz9xXVdgB1w9NQQ6l8KLw2RNrScuKOdiOVNd-4PNDyFf3lGenZR5wOM8YQJYWODTzXGNb_U30VGvg7Wa_WbBPBGOi3Evmc8Bt2YHUwXsNt5Mdl6OmpMj-FQtgTP99xfCJZ9gPOFMDOzzNn3HwGnUaajHtQhPqpdabszovmYOLkLgRvjB16XUpracFqH2tOcT6VpmVJ3vIhW42varJboU",
+    silverTempestPC: "https://lh3.googleusercontent.com/aida-public/AB6AXuDfJFvvcEkRB2xaqSGFM4WYEr9TX3lwQk4nc-kh_EN2XFI0h4s2TkRwSMNeM7Jtgd_xzPBZT3KXap4wq4f5TPv3ruvc1ogK0H49W1-dFZtW_pfbEbzni3svas1D1j5Iog9wfWyjxwsr2smktZdl6B_3TSywreoy-cSpmW7PH8rEbxSoKivunF_iBQODhqmQpuHm76rxqMkz9-PW6RDRErAEnrd9W7jk10AWUXwx7LYZPSeO7dmmqD0AMvoDuAkHVZ3QWnF4Uf-BjF0",
+    phantasmalMegaCharizard: "https://lh3.googleusercontent.com/aida-public/AB6AXuARX7se7s5FZb0Yk08V-vpFvHFxPtigxSaLaBok9rNdj6etHNb16vis9FBKr8MeSSEB8j9FqLkZ5VVSdOOr12cq6j4JT1jF7MGSgvGnf_Unz_-cuSZ1pyjPgu-TPP9v9hi2FWERYyk79kJaM4m9vFKvMU9bs-fpkhmra7Ir3slycuI4MkrYbcRBBmhUJgtuAzftM0Zjg8076vSPXSr1OAX0xJdstsshrsbn4OAoAw8C40OiIjj4hdFRCCPm7BHik7ZCOIhUilF4_ek",
     charizardUPCUsed: "https://lh3.googleusercontent.com/aida-public/AB6AXuBEiWmfoWijdJGcGEZCPf6UneEt6pXxkrYg3SPYT54Y6L5N0Knlx4Mii8YPu5cPbLuTmmdISCw5-06HGIbLnf22yU8MwmYrTMlfWOSsh7qrcqHOtoHtxmMC0px4T9Vr42SXeEV6dquit033rbh7XW73WRUHEkGcwiuue0-btA0b5zj-TjDJQRMTDREuTT9BzkGzIc0Jtb1vfOT6nqk5sJ9VdN55XOWqRCvrtr5LiZaeXQIK5p4kE5Ni5ElstaJbaHMswM-s0dHd1u0",
-    mtgCommander: "https://lh3.googleusercontent.com/aida-public/AB6AXuBSg7IOpGxioTqEtdzyGOJLH0P2kHem7W7Bb7UMo-yIVCqzEsjRKdzwW8pAM8HPHAAY2jg7HBq25V0MfFpl26Ym17KxGzgs1MnKZOojFCu_t2f1RxAC2GbX9t1W4uS1R7bicA7N90_fdb2bNbM_KvxZ-QFzzYRoeYHegQUqJAb3wpcNS2KvsFsV3wwuNoi7Mvj0DNLQkBOYzBDel_Lxa2oyP9BvUv3NrNzbS3kEQ5TOGJI3ESq7OMzn_jl8XbANi7PQ_loAyRc-Uws",
-    digimonSpecial: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpSr2Pe4BtIaPpYSZ7pgqzxUMmU24v3Vilx2xvw5AHhUbWpe7ccPDcrVBWzuyoLjupXdeMDwv0oYmkRMU3XFJH-wkoGWl8eYcH2pncY6-ctV_EO8gx4YplpMEk7FYmifY93WK8F4ujVYmmxOD8mu_VEf1gqIC93G_czWUc7CYrtHoQ2jUOzFmvKAgkeqmtt5MFT5v8x7srjUjgAd28panEsubV7R6rxZk9yFM77GACWAmItJXhz0ivc8nU-K1YlGY-AZZnniBq7hA"
+    teamRocketPack: "https://lh3.googleusercontent.com/aida-public/AB6AXuCKNy7C27dkql_ZU4A5GjRd44zTVH-LAS2IcHWwsgnwhXibY9sgY0lnJWYqotEt_D_B58ibfGEcta8Ai1z6HYo3Mv01qqnKjpfaKzI0jmd19z3LRlfx1K4iOgHrR1p0bQxdl4bltiFm-noAox5G6dJdszFSnKXMSSizLQ_hReEYk-h_UH5bZUZ2J7RVBj0MmgFH569uTurawjudNaTWogcrKTXwONB6LWJ7CJcgQtxqLSBr1w8Srypvyyh4dPy_0W5X10KUGqHuA2g",
+    twilightMasqueradeBB: "https://lh3.googleusercontent.com/aida-public/AB6AXuDXBBYHIOfGr7cfdwWth2TKNEWlgJa5rgrOjSZGB2zwlDwmbxnj_KIBpe2Z_4BvypH3_P7dfpQIEGseMFmW2lrj_KUiiWyH8SIRGjiSWDAyRO29_WeQfvt98rc3VnfOnQZVuN_-UjJxBMXY2ZIIsGZNuNgpGph2FTO6SZKsS-ERYt6Bbio-YePQ_TpUj7aVGDeXOQs3agqmTQzo8D2cimEoeoWS-fIrdOLyI0gD0OMwmJVly7zUU8D1bLueyed-OfV9CGS2a4zv7_g",
+    fusionStrikeBB: "https://lh3.googleusercontent.com/aida-public/AB6AXuCCMxZjd9SskQf3zz3E7fttNq744911CstIT5jVoNs-uYLxz45l5oEGLgcPKFLUIww3SJQmqqZ3HHpjEMtNV97Ocw8WHWoq7X-PWmNoGcy64pB5gx5NboDarWxKnirXSxcxLACk8k_tUI22JUsjBqLAHmM7UQlUfQ7uyjEoGyYqqLYB0y4F6gad9EPnZy23Mt0s-s7cczE8Z0ZNtgNSA4KJtp5giLpfZ3oT6EpkIMj7xVaZ_6sdowYb3MlrI8ml3nLCI5y-ydOYAvg",
+    psa10Lugia: "https://lh3.googleusercontent.com/aida-public/AB6AXuCbTZy44VA58PSOiqKSP-oDKtthk0_EKY1XbUlwU_XQyXdi7gCvz3H7kK-QQJhK1mbBr363f873DUaPZaIOUsR8BZ5pPsHpcTRjwRf8asHU0S_8pJbBtPdWkJTXV8HtFl49Gv59Gvw58ApF3c-ZEaJNZkuoXEL76hm8NHWp2a7oCAHw5vZPFNHCXv4RWxGwL05QqaU0QsQq6qH1mEmcJLN2xxRC01W9ZinmX3zRaib6z_qu18I4PuF5tZjwzvQJkFT59x8ji8MNmUI",
 };
 
 // Premium high-resolution TCG product images and local assets
@@ -66,7 +60,6 @@ const IMGS = {
     surgingSparks: POKEMART_ASSETS.surgingSparks,
     p151Bundle: POKEMART_ASSETS.bundle151,
     rebelClash: POKEMART_ASSETS.rebelClashBB,
-    op13: POKEMART_ASSETS.onePieceBooster,
     stellarCrown: POKEMART_ASSETS.stellarCrownBox,
     twilight: POKEMART_ASSETS.twilightMasqueradeBB,
     obsidian: tcgImg(TCG_IDS.obsidian),
@@ -87,39 +80,51 @@ const IMGS = {
 };
 
 export const PRODUCTS: Product[] = [
-    { id: 1, name: "Surging Sparks Booster Box", price: 220.00, category: "booster", badge: "HOT", image: IMGS.surgingSparks, description: "36 booster packs featuring Pikachu ex and powerful Thunder-type Pokémon.", stock: 20 },
-    { id: 2, name: "Destined Rivals Booster Box", price: 180.00, category: "booster", badge: "NEW", image: "https://www.pokeguardian.com/resources/images/news/4/p10345_10-10157-101_03-standard.jpg", description: "Vantange Point expansion for Destined Rivals.", stock: 20 },
-    { id: 3, name: "Spc", price: 140.00, category: "special", image: POKEMART_ASSETS.ancientVariant, description: "Special Premium Collection.", stock: 20 },
-    { id: 4, name: "Scarlet And Violet 151 Booster Bundle", price: 100.00, category: "bundles", image: IMGS.p151Bundle, description: "Compact bundle containing 6 booster packs.", stock: 20 },
-    { id: 5, name: "Journey Together Enhanced Booster Box", price: 160.00, category: "booster", image: POKEMART_ASSETS.galaxyVariant, description: "Special enhanced edition of Journey Together.", stock: 20 },
-    { id: 6, name: "Journey Together Elite Trainer Box ETB", price: 50.00, category: "etb", image: POKEMART_ASSETS.temporalForcesETB, description: "Elite Trainer Box for Journey Together.", stock: 20 },
-    { id: 7, name: "Rebel Clash Box", price: 350.00, category: "booster", badge: "VAULT", image: IMGS.rebelClash, description: "Classic Sword & Shield era box.", stock: 20 },
-    { id: 8, name: "Battle Styles Box", price: 205.00, category: "booster", image: IMGS.battleStyles, description: "The era of Single Strike and Rapid Strike.", stock: 20 },
-    { id: 9, name: "Twilight Masquerade Box", price: 230.00, category: "booster", badge: "HOT", image: IMGS.twilight, description: "The latest Ogerpon-themed set.", stock: 20 },
-    { id: 10, name: "Obsidian Flame Booster Box", price: 240.00, category: "booster", image: IMGS.obsidian, description: "Tera Charizard ex set.", stock: 20 },
-    { id: 11, name: "Temporal Forces Booster Box", price: 210.00, category: "booster", image: IMGS.temporal, description: "Future/Ancient mechanics expansion.", stock: 20 },
-    { id: 12, name: "Stellar Crown Booster Box", price: 210.00, category: "booster", image: IMGS.stellarCrown, description: "Stellar-type Tera Pokémon debut.", stock: 20 },
-    { id: 13, name: "OP-13 Booster Box", price: 260.00, category: "booster", badge: "RARE", image: IMGS.op13, description: "One Piece TCG High Value set.", stock: 20 },
-    { id: 14, name: "Prismatic PC ETB", price: 160.00, category: "etb", image: POKEMART_ASSETS.stellarVariant, description: "Prismatic Evolutions Pokémon Center ETB.", stock: 20 },
-    { id: 15, name: "Phantasmal Flames Booster Box", price: 180.00, category: "booster", image: POKEMART_ASSETS.deltaVariant, description: "Limited release Phantasmal Flames box.", stock: 20 },
-    { id: 16, name: "Phantasmal Flames ETB", price: 120.00, category: "etb", image: POKEMART_ASSETS.ancientVariant, description: "Elite Trainer Box for Phantasmal Flames.", stock: 20 },
-    { id: 17, name: "Phantasmal Mega Charizard UPC", price: 130.00, category: "special", image: POKEMART_ASSETS.megaCharizard, description: "Ultra Premium Collection - Phantasmal Edition.", stock: 20 },
-    { id: 18, name: "Blooming Waters", price: 75.00, category: "special", image: POKEMART_ASSETS.paldeaBox, description: "Aquatic-themed special collection.", stock: 20 },
-    { id: 19, name: "151 PC ETB", price: 150.00, category: "etb", image: POKEMART_ASSETS.upc151, description: "Pokémon Center Exclusive 151 ETB.", stock: 20 },
-    { id: 20, name: "Costco Prismatic Evolutions 8-pack Mini Tins", price: 100.00, category: "bundles", image: POKEMART_ASSETS.bundle151, description: "Bulk mini tins collection.", stock: 20 },
-    { id: 21, name: "151 UPC", price: 130.00, category: "special", image: POKEMART_ASSETS.charizardUPCUsed, description: "Scarlet & Violet 151 Ultra Premium Collection.", stock: 20 },
-    { id: 22, name: "Mega Evolution Booster Box", price: 180.00, category: "booster", image: POKEMART_ASSETS.megaCharizard, description: "Classic Mega Evolution display.", stock: 20 },
-    { id: 23, name: "Mega Evolution Lucario Elite Trainer Box", price: 80.00, category: "etb", image: POKEMART_ASSETS.zapdosSIR, description: "Lucario-themed Mega Evolution ETB.", stock: 20 },
-    { id: 24, name: "Black Bolt Elite Trainer Box", price: 70.00, category: "etb", image: POKEMART_ASSETS.temporalForces, description: "Electric-type focused ETB.", stock: 20 },
-    { id: 25, name: "Prismatic Evolutions Lucario And Tyranitar Premium Collection", price: 100.00, category: "special", image: POKEMART_ASSETS.deltaVariant, description: "Sam's Club Exclusive Collection.", stock: 20 },
+    // POKEMON HIGH END
+    { id: 1, name: "Pokémon Surging Sparks Booster Box", price: 210.00, category: "booster", badge: "HOT", image: IMGS.surgingSparks, description: "36 booster packs featuring Pikachu ex and powerful Thunder-type Pokémon.", stock: 20 },
+    { id: 2, name: "Temporal Forces Booster Box", price: 210.00, category: "booster", badge: "NEW", image: IMGS.temporal, description: "Ancient & Future Pokémon expansion.", stock: 15 },
+    { id: 3, name: "Stellar Crown Booster Box", price: 210.00, category: "booster", badge: "HOT", image: IMGS.stellarCrown, description: "Stellar-type Tera Pokémon debut.", stock: 12 },
+    { id: 4, name: "Team Rocket Returns Box", price: 900.00, category: "special", badge: "GRAIL", image: POKEMART_ASSETS.teamRocket, description: "Ultra-rare vintage box from EX era.", stock: 1 },
+
+    // MAGIC THE GATHERING
+    { id: 27, name: "MTG Modern Horizons 3 Play Booster", price: 240.00, category: "mtg", badge: "NEW", image: POKEMART_ASSETS.mtgCommander, description: "High-power MTG set for Modern format.", stock: 10 },
+    { id: 28, name: "MTG Lord of the Rings Collector Box", price: 420.00, category: "mtg", badge: "GRAIL", image: "https://product-images.tcgplayer.com/490218/400w.jpg", description: "Limited edition Collector boosters for LOTR.", stock: 3 },
+
+    // DIGIMON TCG
+    { id: 29, name: "Digimon Special Booster Ver.1.0", price: 95.00, category: "digimon", badge: "SALE", image: POKEMART_ASSETS.digimonSpecial, description: "Combined English release of sets 1-3.", stock: 25 },
+    { id: 30, name: "Digimon Blast Ace BT14 Box", price: 85.00, category: "digimon", image: "https://product-images.tcgplayer.com/514214/400w.jpg", description: "Wargreymon & Angemon themed set.", stock: 18 },
+
+    // VINTAGE & PSA
+    { id: 7, name: "Rebel Clash Vintage Box", price: 350.00, category: "booster", badge: "VAULT", image: IMGS.rebelClash, description: "Classic Sword & Shield era box.", stock: 4 },
+    { id: 31, name: "PSA 10 Lugia Neo Genesis 1st Ed", price: 3200.00, category: "special", badge: "PSA 10 GEM MINT", image: POKEMART_ASSETS.psaLugia, description: "One of the most iconic cards in history.", stock: 1 },
+    { id: 32, name: "Mewtwo Strikes Back Collection", price: 120.00, category: "special", image: POKEMART_ASSETS.mewtwoStrikes, description: "Special anniversary commemorative collection.", stock: 8 },
+
+    // OTHERS
+    { id: 33, name: "Paldea Evolved Storage Case", price: 45.00, category: "bundles", image: POKEMART_ASSETS.paldeaBox, description: "Premium storage for your TCG collection.", stock: 50 },
+    { id: 34, name: "JP 151 Booster Box (Import)", price: 180.00, category: "booster", badge: "STOCK LOW", image: POKEMART_ASSETS.jp151Booster, description: "Original Japanese edition of the hit 151 set.", stock: 3 },
+    { id: 35, name: "Mtg Commander Legends Vault", price: 75.00, category: "mtg", image: POKEMART_ASSETS.mtgCommander, description: "A multi-TCG companion vault.", stock: 100 },
+
+    { id: 36, name: "PSA 10 Mega Charizard (Phantasmal)", price: 1250.00, category: "special", badge: "ULTRA GRAIL", image: POKEMART_ASSETS.phantasmalMegaCharizard, description: "The phantasmal mega Charizard, PSA 10 gem mint.", stock: 1 },
+    { id: 42, name: "PSA 10 Umbreon VMAX Alt Art", price: 800.00, category: "special", badge: "GEM MINT", image: POKEMART_ASSETS.umbreonVMaxPSA, description: "Evolving Skies Moonbreon, PSA 10.", stock: 2 },
+    { id: 43, name: "Team Rocket Returns Box", price: 900.00, category: "booster", badge: "VINTAGE", image: POKEMART_ASSETS.teamRocket, description: "EX Series vintage sealed box.", stock: 1 },
+    { id: 44, name: "Stellar Crown Booster Box", price: 210.00, category: "booster", badge: "HOT", image: POKEMART_ASSETS.stellarCrownBox, description: "Latest Terasutal set from Scarlet & Violet.", stock: 24 },
+    { id: 45, name: "Neo Genesis 1st Ed Lugia", price: 3200.00, category: "special", badge: "PSA 9", image: POKEMART_ASSETS.psa10Lugia, description: "Legendary bird from the Johto era.", stock: 1 },
+    { id: 46, name: "Pokemon Center 151 ETB", price: 150.00, category: "booster", badge: "EXCLUSIVE", image: POKEMART_ASSETS.pc151Etb, description: "Limited Pokémon Center edition of 151.", stock: 5 },
+    { id: 47, name: "Charizard Ultra Premium Collection", price: 120.00, category: "special", badge: "BEST VALUE", image: POKEMART_ASSETS.charizardUPCUsed, description: "Celebration of the iconic fire drake.", stock: 12 },
+    { id: 48, name: "Charizard VMAX Shiny Vault", price: 185.00, category: "special", badge: "HOT", image: POKEMART_ASSETS.charizardVmax, description: "Massive shiny Charizard from Shining Fates.", stock: 3 },
+    { id: 49, name: "Pikachu Illustrator Promo", price: 500000.00, category: "special", badge: "LEGENDARY", image: POKEMART_ASSETS.pikachuIllustrator, description: "The rarest Pokémon card in existence.", stock: 1 },
+    { id: 50, name: "Vintage Base Set Booster Pack", price: 420.00, category: "booster", badge: "VINTAGE", image: POKEMART_ASSETS.baseSetBooster, description: "Unweighed 1999 original booster pack.", stock: 2 },
+    { id: 51, name: "Twilight Masquerade Booster Box", price: 110.00, category: "booster", badge: "NEW", image: POKEMART_ASSETS.twilightMasqueradeBB, description: "Latest SV expansion.", stock: 40 },
+    { id: 52, name: "Fusion Strike Booster Box", price: 140.00, category: "booster", image: POKEMART_ASSETS.fusionStrikeBB, description: "Mew-themed battle set.", stock: 15 },
+    { id: 53, name: "Vintage Team Rocket Pack", price: 250.00, category: "booster", badge: "VINTAGE", image: POKEMART_ASSETS.teamRocketPack, description: "Classic dark Pokémon expansion.", stock: 5 },
 ];
 
 export const CATEGORIES = [
-    { id: 'all', name: 'All' },
+    { id: 'all', name: 'All Collections' },
     { id: 'booster', name: 'Booster Boxes' },
-    { id: 'etb', name: 'Elite Trainer Boxes' },
-    { id: 'bundles', name: 'Bundles & Tins' },
-    { id: 'special', name: 'Special Collections' },
+    { id: 'mtg', name: 'Magic: The Gathering' },
+    { id: 'digimon', name: 'Digimon' },
+    { id: 'special', name: 'Vault Grails' },
 ];
 
 export const FEATURED_IMAGES = [
